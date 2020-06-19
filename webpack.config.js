@@ -18,7 +18,9 @@ module.exports = {
             }
         ]
     },
-
+    stats: {
+        warningsFilter: w => w !== 'CriticalDependenciesWarning',
+    },
     entry: PATHS.bundlePath,
     mode: nodeEnv,
     target: 'node',
@@ -29,13 +31,9 @@ module.exports = {
     resolve: {
         extensions: ['.ts', '.js'],
     },
-    // externals: [
-    //     'dtrace-provider',
-    //     'fs',
-    //     'mv',
-    //     'os',
-    //     'source-map-support',
-    // ],
+    externals: [
+        'dtrace-provider',
+    ],
     watch: nodeEnv === 'development',
     plugins: [
         new WebpackShellPlugin({
