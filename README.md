@@ -1,3 +1,5 @@
+![alt text](Apollo_logo.png "Apollo")
+
 # Apollo API
 This is a RESTful API built on Express.js, Typescript, and Webpack
 
