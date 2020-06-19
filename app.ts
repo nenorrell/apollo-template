@@ -4,11 +4,12 @@ import * as onFinished from "on-finished"
 import {cyan, green} from "chalk";
 import {info, debug, error} from "./src/modules/logger";
 import { Responses } from './src/api/Responses';
+import { Rocket } from './src/config/Rocket';
 
 const app = express();
 const port = 1337;
 
-debug(cyan("Starting Apollo API..."))
+debug(cyan("Apollo Fueling up..."))
 
 app.use((req, res, next)=>{
     info("Logging request", {req});
@@ -53,4 +54,7 @@ app.delete('*', (req, res)=>{
 
 debug("Routes bound.")
 
-app.listen(port, () => debug(green(`Apollo API is listening on port ${port}!`)))
+app.listen(port, () => {
+    new Rocket().launch();
+    debug(green(`Apollo API has launched on port ${port}!`))
+})

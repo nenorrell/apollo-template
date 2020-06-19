@@ -9,6 +9,6 @@ export class Controller{
     constructor(req :Request, res :Response){
         this.req = req;
         this.res = res;
-        this.responses = new Responses(res);
+        this.responses = new Responses(this.res);
     }
 }

@@ -3,7 +3,7 @@ IMAGE=apollo/api
 UNIT_TEST := "tests/unit/**/*.test.js"
 INTEGRATION_TEST := "tests/integration/**/*.test.js"
 
-start: down install network up
+launch: down install network up
 
 down:
 	docker-compose down
