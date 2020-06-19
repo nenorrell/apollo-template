@@ -1,0 +1,26 @@
+version: '2'
+
+services:
+
+  express:
+    build: .
+    image: "apollo/api"
+    user: "node"
+    working_dir: /usr/src/app
+    environment:
+      NODE_ENV: "development"
+      ENV: "local"
+    
+    volumes:
+      - ./:/usr/src/app
+    ports:
+      - "9200:9200"
+      - "3035:1337"
+    expose:
+      - "1337"
+    entrypoint: "npm run webpack"
+
+networks:
+  default:
+    external:
+      name: apollo_api
