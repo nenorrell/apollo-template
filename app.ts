@@ -26,7 +26,7 @@ new Routes().buildRoutesArray().forEach((route)=>{
         app[route.method](route.path, (req, res)=>{
             let controller = require(`./src/api/${route.controller}/${route.controller}.controller.ts`);
             let controllerClassName = Object.keys(controller)[0];
-            controller = new controller[controllerClassName](req, res)
+            controller = new controller[controllerClassName](req, res, route)
             controller[route.action](req, res);
         });
     }

@@ -1,18 +1,18 @@
 import {Request, Response} from 'express';
 import {Controller} from "../Controller";
-import {Routes} from "../../config/Routes/routes";
 import { Route } from '../../config/Routes/resources/Route';
+import { ExampleService } from './example.service';
 
-export class VersionController extends Controller{
-    private service :Routes;
+
+export class ComplexExample extends Controller{
+    private service :ExampleService;
 
     constructor(req :Request, res :Response, route :Route){
         super(req, res, route);
-        this.service = new Routes();
+        this.service = new ExampleService();
     }
 
     public displayRoutes() :void{
-        console.log(this.route);
-        this.responses.responseArray(200, this.service.buildRoutesArray());
+        this.responses.responseObject(200, this.service.getExample());
     }
 }
