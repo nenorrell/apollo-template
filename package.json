@@ -6,6 +6,7 @@
   "scripts": {
     "start": "pm2 start app.js",
     "start-dev": "pm2-runtime --watch local-config.json",
+    "tests": "node_modules/.bin/nyc node_modules/.bin/_mocha tests/unit/**/*.test.ts -R spec --color --verbose",
     "test": "echo \"Error: no test specified\" && exit 1",
     "webpack": "webpack"
   },
@@ -23,19 +24,25 @@
     "pm2": "^4.4.0"
   },
   "devDependencies": {
-    "webpack": "^4.41.5",
-    "webpack-cli": "^3.3.10",
     "@babel/cli": "^7.10.1",
     "@babel/core": "^7.10.2",
     "@babel/node": "^7.10.1",
+    "@babel/polyfill": "^7.10.1",
     "@babel/preset-env": "^7.10.2",
     "@babel/preset-typescript": "^7.10.1",
+    "@babel/register": "^7.10.3",
+    "@types/chai": "^4.2.11",
+    "@types/mocha": "^7.0.2",
+    "babel-register": "^6.26.0",
     "chai": "^4.2.0",
-    "mocha": "^7.1.0",
+    "mocha": "^8.0.1",
     "nyc": "^15.0.0",
     "sinon": "^9.0.0",
     "ts-loader": "^7.0.5",
+    "ts-node": "^8.10.2",
     "typescript": "^3.9.5",
+    "webpack": "^4.41.5",
+    "webpack-cli": "^3.3.10",
     "webpack-shell-plugin": "^0.5.0"
   }
 }

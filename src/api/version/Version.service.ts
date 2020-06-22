@@ -1,10 +1,14 @@
 import {Service} from "../Service";
-import {execSync} from "child_process"
+import {execSync} from "child_process";
 
 export class VersionService extends Service{
     public getVersion() :string{
-        return execSync('git rev-parse --short HEAD')
+        return this.getGitHash()
         .toString()
         .trim();
+    }
+
+    public getGitHash() :Buffer{
+        return execSync('git rev-parse --short HEAD')
     }
 }

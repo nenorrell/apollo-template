@@ -1,0 +1,9 @@
+FROM node:14
+RUN apt-get update && apt-get install -y \
+    netcat
+
+RUN npm install @babel/cli -g
+RUN npm install @babel/node -g
+RUN npm install @babel/core -g
+COPY . /usr/src/app
+WORKDIR /usr/src/app

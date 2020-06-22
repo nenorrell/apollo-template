@@ -7,6 +7,23 @@ const PATHS = {
   bundlePath:  path.resolve(__dirname, `./app.ts`)
 }
 
+let launchCallback;
+
+if(nodeEnv == "development"){
+    launchCallback = [
+        new WebpackShellPlugin({
+            onBuildEnd: ['npm run start-dev']
+        })
+    ]
+}
+else{
+    launchCallback = [
+        new WebpackShellPlugin({
+            onBuildEnd: ['npm run tests']
+        })
+    ]
+}
+
 module.exports = {
     module: {
         rules: [
@@ -22,7 +39,7 @@ module.exports = {
         warningsFilter: w => w !== 'CriticalDependenciesWarning',
     },
     entry: PATHS.bundlePath,
-    mode: nodeEnv,
+    mode: nodeEnv === "production" ? nodeEnv : "development",
     target: 'node',
     output: {
         path: path.resolve(__dirname, 'build'),
@@ -35,9 +52,5 @@ module.exports = {
         'dtrace-provider',
     ],
     watch: nodeEnv === 'development',
-    plugins: [
-        new WebpackShellPlugin({
-            onBuildEnd: ['npm run start-dev']
-        })
-    ]
+    plugins: launchCallback
 }
