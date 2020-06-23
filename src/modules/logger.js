@@ -12,32 +12,27 @@ function addTag(arg, str) {
     }
 }
 
+function applyToLog(method, str, arg, ...extraArgs){
+    if(!(process.env.NODE_ENV === "test" && process.env.RUN_TESTS_WITH_LOGS == "false")){
+        let args = addTag(arg || arg, str);
+        if(args){
+            log[method].apply(log, [...args, ...extraArgs]);
+        }
+        else{
+            log[method].apply(log, [str, ...extraArgs]);
+        }
+    }
+}
+
 export const info = (str, arg, ...extraArgs)=>{
-    let args = addTag(arg || arg, str);
-    if(args){
-        log.info.apply(log, [...args, ...extraArgs]);
-    }
-    else{
-        log.info.apply(log, [str, ...extraArgs]);
-    }
+    applyToLog('info', str, arg, ...extraArgs);
 }
 
 export const error = (str, arg, ...extraArgs)=>{
     str = chalk.red(str);
-    let args = addTag(arg || arg, str);
-    if(args){
-        log.error.apply(log, [...args, ...extraArgs]);
-    }
-    else{
-        log.error.apply(log, [str, ...extraArgs]);
-    }
+    applyToLog('error', str, arg, ...extraArgs);
 }
 
 export const debug = (str, arg, ...extraArgs)=>{
-    let args = addTag(arg || arg, str);
-    if(args){
-        log.debug.apply(log, [...args, ...extraArgs]);
-    }
-    else{
-        log.debug.apply(log, [str, ...extraArgs]);
-    }}
+    applyToLog('debug', str, arg, ...extraArgs);    
+}

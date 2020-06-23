@@ -4,7 +4,7 @@ PrettyStream = require('bunyan-prettystream');
 let prettyStdOut = new PrettyStream();
 prettyStdOut.pipe(process.stdout);
 
-var bunyanConfig = bunyan.createLogger({
+let bunyanConfig = bunyan.createLogger({
   name: "apollo-api",
   streams: [{
     type: 'raw',
@@ -27,6 +27,6 @@ var bunyanConfig = bunyan.createLogger({
       return responseTime;
     }
   }
-})
+});
 
 module.exports = bunyanConfig;

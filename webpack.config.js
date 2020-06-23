@@ -7,23 +7,6 @@ const PATHS = {
   bundlePath:  path.resolve(__dirname, `./app.ts`)
 }
 
-let launchCallback;
-
-if(nodeEnv == "development"){
-    launchCallback = [
-        new WebpackShellPlugin({
-            onBuildEnd: ['npm run start-dev']
-        })
-    ]
-}
-else{
-    launchCallback = [
-        new WebpackShellPlugin({
-            onBuildEnd: ['npm run tests']
-        })
-    ]
-}
-
 module.exports = {
     module: {
         rules: [
@@ -52,5 +35,9 @@ module.exports = {
         'dtrace-provider',
     ],
     watch: nodeEnv === 'development',
-    plugins: launchCallback
+    plugins: [
+        new WebpackShellPlugin({
+            onBuildEnd: ['npm run start-dev']
+        })
+    ]
 }

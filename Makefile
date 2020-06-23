@@ -3,6 +3,7 @@ IMAGE=apollo/api
 TEST_IMAGE=apollo/test
 UNIT_TEST := "tests/**/*.test.ts"
 INTEGRATION_TEST := "tests/**/*.int-test.ts"
+RUN_TESTS_WITH_LOGS=false
 
 launch: down install network up
 
@@ -24,7 +25,7 @@ install:
 db-migrate:
 	node node_modules/db-migrate/bin/db-migrate create ${NAME}
 
-test: install unit_test
+test: install unit_test integration-test
 
 build_test:
 	docker build -t apollo/test:latest -f Dockerfile.test .
@@ -38,13 +39,13 @@ unit_test:
 	$(UNIT_TEST) -R spec --color --verbose
 
 integration-test:
-	docker run -i --rm -p "9198:1337" -v `pwd`:/usr/src/app -w /usr/src/app node:${NODE} \
+	docker run -i --rm -p "9198:1337" \
+	-e NODE_ENV=test \
+	-e RUN_TESTS_WITH_LOGS=${RUN_TESTS_WITH_LOGS} \
+	-v `pwd`:/usr/src/app -w /usr/src/app node:${NODE} \
 	node_modules/.bin/nyc \
 	node_modules/.bin/mocha \
 	--require ts-node/register \
 	--require ./tests/testHelper.js \
 	--require @babel/polyfill \
 	./build/build.js $(INTEGRATION_TEST) -R spec --color --verbose --exit
-
-integration-test-run:	
-	docker run --network=apollo-api_test -i --rm -v `pwd`:/usr/src/app -w /usr/src/app node:${NODE} node_modules/.bin/nyc node_modules/.bin/_mocha ./app.ts $(INTEGRATION_TEST) -R spec --color

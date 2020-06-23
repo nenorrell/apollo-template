@@ -10,6 +10,11 @@ describe('Version', ()=> {
             await request(App)
             .get("/version")
             .expect(200)
+            .expect(res => {
+                expect(res.body).to.be.an('object');
+                expect(res.body.response).to.be.an('object');
+                expect(res.body.response.version).to.be.a('string');
+            })
         });
     });
 });
