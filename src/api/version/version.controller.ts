@@ -1,6 +1,6 @@
 import {Request, Response} from 'express';
 import {Controller} from "../Controller";
-import {VersionService} from "./Version.service";
+import {VersionService} from "./version.service";
 import { Route } from '../../config/Routes/resources/Route';
 
 export class VersionController extends Controller{

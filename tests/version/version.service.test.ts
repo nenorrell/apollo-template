@@ -1,7 +1,7 @@
 import {expect} from "chai";
 import * as sinon from "sinon";
 import * as cp from "child_process";
-import { VersionService } from "../../../src/api/version/Version.service";
+import { VersionService } from "../../src/api/version/version.service";
 
 let service :VersionService;
 describe('versionService', ()=> {

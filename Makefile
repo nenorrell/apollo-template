@@ -1,8 +1,8 @@
 NODE=14
 IMAGE=apollo/api
 TEST_IMAGE=apollo/test
-UNIT_TEST := "tests/unit/**/*.test.ts"
-INTEGRATION_TEST := "tests/integration/**/*.test.ts"
+UNIT_TEST := "tests/**/*.test.ts"
+INTEGRATION_TEST := "tests/**/*.int-test.ts"
 
 launch: down install network up
 
@@ -36,3 +36,15 @@ unit_test:
 	--require ./tests/testHelper.js \
 	--require @babel/polyfill \
 	$(UNIT_TEST) -R spec --color --verbose
+
+integration-test:
+	docker run -i --rm -p "9198:1337" -v `pwd`:/usr/src/app -w /usr/src/app node:${NODE} \
+	node_modules/.bin/nyc \
+	node_modules/.bin/mocha \
+	--require ts-node/register \
+	--require ./tests/testHelper.js \
+	--require @babel/polyfill \
+	./build/build.js $(INTEGRATION_TEST) -R spec --color --verbose --exit
+
+integration-test-run:	
+	docker run --network=apollo-api_test -i --rm -v `pwd`:/usr/src/app -w /usr/src/app node:${NODE} node_modules/.bin/nyc node_modules/.bin/_mocha ./app.ts $(INTEGRATION_TEST) -R spec --color
