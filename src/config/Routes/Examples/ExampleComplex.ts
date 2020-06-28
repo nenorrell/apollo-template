@@ -2,16 +2,22 @@ import { Route } from "../resources/Route";
 import { RouteParamType, ParamDataTypes } from "../resources/RouteParamType";
 
 export const ComplexRoute :Route = new Route()
-.setMethod("GET")
-.setPath("/examples/complex")
+.setMethod("POST")
+.setPath("/examples/complex/:someParam")
 .setDescription("This endpoint is an example of what a more complex route might look like")
-.setController("examples")
-.setAction("complexExample")
+.setCustomControllerPath("examples/examples.controller.ts")
+.setAction("index")
+.setPathParam([
+    new RouteParamType()
+    .setName("someParam")
+    .setType(ParamDataTypes.number)
+    .setRequired(true)
+])
 .setQueryParams([
     new RouteParamType()
     .setName("test")
     .setRequired(true)
-    .setType(ParamDataTypes.number)
+    .setType(ParamDataTypes.string)
 ])
 .setBodySchema([
     new RouteParamType()

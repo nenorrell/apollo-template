@@ -21,8 +21,7 @@ export class Responses{
     }
 
     public badRequest(data :any, options ?:any){
-        this.res.status(400);
-        this.res.json({
+        this.res.status(400).json({
             code: 400,
             error: "Bad Request",
             error_description: data || ""
@@ -30,8 +29,7 @@ export class Responses{
     }
 
     public serverError(data :any, options ?:any){
-        this.res.status(400);
-        this.res.json({
+        this.res.status(400).json({
             code: 500,
             error: "Internal Server Error",
             error_description: data || ""
@@ -39,8 +37,7 @@ export class Responses{
     }
 
     public notFound(data :any, options ?:any){
-        this.res.status(404)
-        .json({
+        this.res.status(404).json({
             response: {},
             error: "Not Found",
             error_description: data || "",

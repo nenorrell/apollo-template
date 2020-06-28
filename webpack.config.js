@@ -7,6 +7,14 @@ const PATHS = {
   bundlePath:  path.resolve(__dirname, `./app.ts`)
 }
 
+let plugins = [];
+
+if(nodeEnv === 'development'){
+    plugins.push(new WebpackShellPlugin({
+        onBuildEnd: ['npm run start-dev']
+    }));
+}
+
 module.exports = {
     module: {
         rules: [
@@ -35,9 +43,5 @@ module.exports = {
         'dtrace-provider',
     ],
     watch: nodeEnv === 'development',
-    plugins: [
-        new WebpackShellPlugin({
-            onBuildEnd: ['npm run start-dev']
-        })
-    ]
+    plugins: plugins
 }

@@ -5,15 +5,16 @@ export class Route implements RouteInterface{
     public path :PropertyKey;
     public method :PropertyKey;
     public controller :string;
+    public customControllerPath :string;
     public action :PropertyKey;
     public description :string;
+    public pathParams :Array<RouteParamType>;
     public queryParams :Array<RouteParamType>;
-    public queryParamsStructure :any;
     public bodySchema :Array<RouteParamType>;
-    public bodySchemaStructure :any;
-    
-    constructor(){
-    }
+    public formattedPathParams :any;    
+    public formattedBodySchema :any;
+    public formattedQueryParams :any;
+    public bodyContentType :String;
 
     public setMethod(method :PropertyKey) :Route{
         this.method = method.toString().toLocaleLowerCase();
@@ -25,6 +26,14 @@ export class Route implements RouteInterface{
         return this;
     }
 
+    // Mutually exclusive to this.controller
+    // Controller is still expected to be in the api folder
+    public setCustomControllerPath(customControllerPath :string) :Route{
+        this.customControllerPath = customControllerPath;
+        return this;
+    }
+
+    // Mutually exclusive to this.customControllerPath
     public setController(controller :string) :Route{
         this.controller = controller;
         return this;
@@ -40,30 +49,36 @@ export class Route implements RouteInterface{
         return this;
     }
 
+    public setPathParam(params :Array<RouteParamType>) :Route{
+        this.pathParams = params;
+        this.formattedPathParams = this.formatParams(params);
+        return this;
+    }
+
     public setQueryParams(queryParams :Array<RouteParamType>) :Route{
         this.queryParams = queryParams;
-        this.queryParamsStructure = this.formatQueryParams(queryParams);
+        this.formattedQueryParams = this.formatParams(queryParams);
         return this;
     }
 
     public setBodySchema(bodySchema :Array<RouteParamType>) :Route{
         this.bodySchema = bodySchema;
-        this.bodySchemaStructure = this.buildSchema(bodySchema);
+        this.formattedBodySchema = this.buildSchema(bodySchema);
         return this;
     }
 
-    private formatQueryParams(queryParams :Array<RouteParamType>){
+    public setBodyContentType(contentType :string) :Route{
+        this.bodyContentType = contentType;
+        return this;
+    }
+
+    private formatParams(queryParams :Array<RouteParamType>) :any{
         return queryParams.map((param)=>{
-            return {
-               name: param.name,
-               description: param.description,
-               required: param.required,
-               type: param.type
-           } 
+            return this.formatParam(param);
         });
     }
 
-    private buildSchema(level :Array<RouteParamType>){
+    private buildSchema(level :Array<RouteParamType>) :any{
         let schema :any = {};
         level.forEach((item)=>{
             schema[item.name] = this.buildBodySchemaLevel(item)
@@ -71,7 +86,7 @@ export class Route implements RouteInterface{
         return schema;
     }
 
-    private buildBodySchemaLevel(item :RouteParamType){
+    private buildBodySchemaLevel(item :RouteParamType) :any{
         let obj :any = {};
         if(item.children){
             if(item.type === ParamDataTypes.object){
@@ -82,12 +97,12 @@ export class Route implements RouteInterface{
             }
         }
         else{
-            obj = this.parseBodySchemaLevel(item)
+            obj = this.formatParam(item);
         }
         return obj;
     }
     
-    private parseBodySchemaLevel(item){
+    private formatParam(item :RouteParamType) :any{
         return {
             name: item.name,
             description: item.description,

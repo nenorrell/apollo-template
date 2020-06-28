@@ -13,8 +13,11 @@ down:
 up:
 	docker-compose up
 
-build:
+tag:
 	docker build --no-cache -t $(IMAGE):latest .
+
+run-prod:
+	docker run -d -p 80:1337 $(IMAGE)
 
 network:
 	./bin/network.sh
@@ -27,13 +30,11 @@ db-migrate:
 
 test: install unit_test integration-test
 
-build_test:
-	docker build -t apollo/test:latest -f Dockerfile.test .
-
 unit_test:
 	docker run -i --rm -p "9199:9200" -v `pwd`:/usr/src/app -w /usr/src/app node:${NODE} \
 	node_modules/.bin/nyc \
 	node_modules/.bin/mocha \
+	--require ts-node/register \
 	--require ./tests/testHelper.js \
 	--require @babel/polyfill \
 	$(UNIT_TEST) -R spec --color --verbose
