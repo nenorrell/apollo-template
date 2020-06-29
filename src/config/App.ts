@@ -13,12 +13,17 @@ export class App{
     public port: number = 1337;
 
     constructor(){
-        this.app = express();
-        debug(cyan("Apollo Fueling up..."));
-        this.setupBodyParsers();
-        this.setupReqLogger();
-        this.bindRoutes();
-        this.setupErrorHandler();
+        try{
+            this.app = express();
+            debug(cyan("Apollo Fueling up..."));
+            this.setupBodyParsers();
+            this.setupReqLogger();
+            this.bindRoutes();
+            this.setupErrorHandler();
+        }
+        catch(e){
+            error("Something went wrong in the setup", e)
+        }
     }
 
     private setupReqLogger() :void{

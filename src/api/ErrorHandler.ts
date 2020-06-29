@@ -16,6 +16,9 @@ export class ErrorHandler{
 
     handleError(){
         switch(this.err.status){
+            case 401:
+                this.responses.unauthorized(this.err.details);
+                break;
             case 404:
                 this.responses.notFound(this.err.details);
                 break;
@@ -27,7 +30,7 @@ export class ErrorHandler{
                 this.responses.serverError(this.err.details);
                 break;
             default:
-                error(JSON.stringify(this.err));
+                error(this.err);
                 this.responses.serverError(this.err.details);
                 break;
         }

@@ -29,7 +29,7 @@ export class Responses{
     }
 
     public serverError(data :any, options ?:any){
-        this.res.status(400).json({
+        this.res.status(500).json({
             code: 500,
             error: "Internal Server Error",
             error_description: data || ""
@@ -42,6 +42,15 @@ export class Responses{
             error: "Not Found",
             error_description: data || "",
             code: 404
+        });
+    }
+
+    public unauthorized(data :any, options ?:any){
+        this.res.status(401).json({
+            response: {},
+            error: "Unauthorized",
+            error_description: data || "",
+            code: 401
         });
     }
 }

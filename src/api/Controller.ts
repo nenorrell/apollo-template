@@ -2,7 +2,8 @@ import {Request, Response, NextFunction, request} from 'express';
 import { Responses } from './Responses';
 import { Route } from '../config/Routes/resources/Route';
 import { RouteParamType, ParamDataTypes} from '../config/Routes/resources/RouteParamType';
-import { ErrorInterface } from '../config/resources/ErrorInterface';
+import { formatError } from '../modules/utility';
+import { Policies } from '../config/Routes/Policies';
 
 export class Controller{
     private res :Response;
@@ -12,15 +13,13 @@ export class Controller{
     public next :NextFunction;
 
     constructor(req :Request, res :Response, next :NextFunction, route :Route){
-        // TODO
-        // Validate that the request body is valid content type determined by the route
-        // (Default will be JSON)
         try{
             this.req = req;
             this.res = res;
             this.next = next;
             this.responses = new Responses(this.res);
             this.route = route;
+            this.checkPolicies(new Policies(req, res, next), route);
             this.validatePathParams();
             this.validateQueryParams();
             this.validateReqBody();
@@ -30,12 +29,19 @@ export class Controller{
         }
     }
 
+    private checkPolicies(policies :Policies, route :Route){
+        if(route.policies){
+            route.policies.forEach(policyName => {
+                policies.runPolicy(policyName)
+            });
+        }
+    }
+
     private validatePathParams() :void{
         try{
             if(this.route.pathParams){
                 this.route.pathParams.forEach((param :RouteParamType)=>{
                     let pathParam = this.req.params[param.name];
-                    // console.log(pathParam)
                     this.validatePathParamType(param, pathParam);
                 });
             }
@@ -58,7 +64,7 @@ export class Controller{
     private validateReqBody() :void{
         if(this.route.bodySchema){
             if(!this.req.body){
-                throw this.formatError(400, "Payload is expected");
+                throw formatError(400, "Payload is expected");
             }
         }
     }
@@ -66,7 +72,7 @@ export class Controller{
     private validateRequiredParam(param :RouteParamType, requestParam :any) :void{
         if(param.required && !requestParam){
             let err = `${param.name} was not sent and is required`;
-            throw this.formatError(400, err);
+            throw formatError(400, err);
         }
     }
 
@@ -74,7 +80,7 @@ export class Controller{
         if(requestParam){
             if(!this.isValidTypes(param.type, requestParam)){
                 let err = `Invalid param type for ${param.name}: Expected ${param.typeDisplayValue} but got ${typeof requestParam}`;
-                throw this.formatError(400, err);
+                throw formatError(400, err);
             }
         }
     }
@@ -83,7 +89,7 @@ export class Controller{
         if(requestParam){
             if(!this.isValidTypes(param.type, requestParam)){
                 let err = `${this.route.method.toString().toUpperCase()} ${this.req.path} is not a valid request path`;
-                throw this.formatError(400, err);
+                throw formatError(400, err);
             }
         }
     }
@@ -141,13 +147,6 @@ export class Controller{
         }
         catch(e){
             throw e;
-        }
-    }
-
-    public formatError(status :number, details :any) :ErrorInterface{
-        return {
-            status,
-            details
         }
     }
 }

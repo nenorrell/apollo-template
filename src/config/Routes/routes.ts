@@ -1,6 +1,6 @@
 import {Route} from './resources/Route';
 import { RouteParamType, ParamDataTypes } from './resources/RouteParamType';
-import { ComplexRoute } from './Examples/ExampleComplex';
+// import { ComplexRoute } from './Examples/ExampleComplex';
 import { cleanObject } from '../../modules/utility';
 
 export class Routes{
@@ -8,7 +8,8 @@ export class Routes{
     .setMethod("GET")
     .setPath("/")
     .setController("root")
-    .setAction("index");
+    .setAction("index")
+    .setPolicies(["isAuthenticated"]);
 
     private version :Route = new Route()
     .setMethod("GET")
@@ -27,8 +28,8 @@ export class Routes{
     public baseRoutes :Array<Route> = [
         this.root,
         this.version,
-        this.apiDoc,
-        ComplexRoute
+        this.apiDoc
+        // ComplexRoute
     ];
 
     public getFormattedRoutes() :Array<Route>{

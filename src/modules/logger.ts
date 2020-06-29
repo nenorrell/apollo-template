@@ -24,15 +24,15 @@ function applyToLog(method, str, arg, ...extraArgs){
     }
 }
 
-export const info = (str, arg, ...extraArgs)=>{
+export const info = (str?:any, arg?:any, ...extraArgs)=>{
     applyToLog('info', str, arg, ...extraArgs);
 }
 
-export const error = (str, arg, ...extraArgs)=>{
+export const error = (str?:any, arg?:any, ...extraArgs)=>{
     str = chalk.red(str);
     applyToLog('error', str, arg, ...extraArgs);
 }
 
-export const debug = (str, arg, ...extraArgs)=>{
+export const debug = (str?:any, arg?:any, ...extraArgs)=>{
     applyToLog('debug', str, arg, ...extraArgs);    
 }

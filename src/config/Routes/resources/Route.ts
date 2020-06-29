@@ -1,12 +1,12 @@
-import { RouteInterface } from "./RouteInterface";
 import { RouteParamType, ParamDataTypes } from "./RouteParamType";
 
-export class Route implements RouteInterface{
+export class Route {
     public path :PropertyKey;
     public method :PropertyKey;
     public controller :string;
     public customControllerPath :string;
     public action :PropertyKey;
+    public policies :Array<string>;
     public description :string;
     public pathParams :Array<RouteParamType>;
     public queryParams :Array<RouteParamType>;
@@ -14,7 +14,6 @@ export class Route implements RouteInterface{
     public formattedPathParams :any;    
     public formattedBodySchema :any;
     public formattedQueryParams :any;
-    public bodyContentType :String;
 
     public setMethod(method :PropertyKey) :Route{
         this.method = method.toString().toLocaleLowerCase();
@@ -44,6 +43,11 @@ export class Route implements RouteInterface{
         return this;
     }
 
+    public setPolicies(policies :Array<string>) :Route{
+        this.policies = policies;
+        return this;
+    }
+
     public setDescription(description :string) :Route{
         this.description = description;
         return this;
@@ -64,11 +68,6 @@ export class Route implements RouteInterface{
     public setBodySchema(bodySchema :Array<RouteParamType>) :Route{
         this.bodySchema = bodySchema;
         this.formattedBodySchema = this.buildSchema(bodySchema);
-        return this;
-    }
-
-    public setBodyContentType(contentType :string) :Route{
-        this.bodyContentType = contentType;
         return this;
     }
 
