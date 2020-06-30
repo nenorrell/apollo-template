@@ -1,6 +1,5 @@
 import { NextFunction, Response, Request } from "express";
 import { error } from "../../modules/logger";
-import { Route } from "./resources/Route";
 import { formatError } from "../../modules/utility";
 
 interface PolicyFunction{
@@ -31,15 +30,19 @@ export class Policies{
     }
 
     private setPolicies() :void{
-        this.list.set("isAuthenticated", this.isAuthenticated);
+        // An Example of how you would set your policy:
+        // 
+        // this.list.set("isAuthenticated", this.isAuthenticated);
     }
 
-    private isAuthenticated(req :Request, res :Response, next :NextFunction) :boolean{
-        if(req.get("Authorization")) {
-            return true;
-        }
-        else{
-            throw formatError(401, "You're not authorized to make this request")
-        }
-    }
+    // An example of what a policy might look like:
+    // 
+    // private isAuthenticated(req :Request, res :Response, next :NextFunction) :boolean{
+    //     if(req.get("Authorization")) {
+    //         return true;
+    //     }
+    //     else{
+    //         throw formatError(401, "You're not authorized to make this request")
+    //     }
+    // }
 }

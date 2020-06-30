@@ -9,7 +9,6 @@ export class Routes{
     .setPath("/")
     .setController("root")
     .setAction("index")
-    .setPolicies(["isAuthenticated"]);
 
     private version :Route = new Route()
     .setMethod("GET")
