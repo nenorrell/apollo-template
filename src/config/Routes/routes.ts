@@ -31,17 +31,12 @@ export class Routes{
         // ComplexRoute
     ];
 
-    public getFormattedRoutes() :Array<Route>{
-        return this.formatRoutes([
-            ...this.baseRoutes
-        ]);
-    }
-    
+    public routesArray :Array<Route> = [
+        ...this.baseRoutes
+    ]
 
-    public buildRoutesArray() :Array<Route>{
-        // Return custom routes like
-        // [...baseRoutes, ...userRoots, ...adminRoutes]
-        return [...this.baseRoutes];
+    public getFormattedRoutes() :Array<Route>{
+        return this.formatRoutes(this.routesArray);
     }
     
     public formatRoutes(routes :Array<Route>) :Array<any>{

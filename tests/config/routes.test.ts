@@ -9,22 +9,6 @@ describe('Routes', ()=> {
         routes = new Routes();
     })
 
-    describe("buildRoutesArray()", ()=> {
-        it('Should build routes array properly', (done)=>{
-            routes.baseRoutes = [
-                new Route()
-                .setMethod("GET")
-                .setPath("/")
-                .setController("root")
-                .setAction("index")
-            ]
-            let testRoutes = routes.buildRoutesArray();
-            expect(testRoutes).to.be.an('array');
-            expect(testRoutes.length).to.equal(1);
-            expect(testRoutes[0] instanceof Route).to.equal(true)
-            done();
-        });
-    });
     describe("formatRoutes()", ()=> {
         it('Should format routes properly', (done)=>{
             let testRoute = new Route()

@@ -4,21 +4,20 @@ import { Route } from '../config/Routes/resources/Route';
 import { RouteParamType, ParamDataTypes} from '../config/Routes/resources/RouteParamType';
 import { formatError } from '../modules/utility';
 import { Policies } from '../config/Routes/Policies';
+// import { PoolConnection } from 'mysql';
 
 export class Controller{
-    private res :Response;
-    private req :Request;
     public responses :Responses;
-    public route :Route;
-    public next :NextFunction;
-
-    constructor(req :Request, res :Response, next :NextFunction, route :Route){
+    
+    constructor(
+        private req :Request, 
+        private res :Response, 
+        public next :NextFunction, 
+        public route :Route,
+        // private db ?:PoolConnection
+    ){
         try{
-            this.req = req;
-            this.res = res;
-            this.next = next;
             this.responses = new Responses(this.res);
-            this.route = route;
             this.checkPolicies(new Policies(req, res, next), route);
             this.validatePathParams();
             this.validateQueryParams();

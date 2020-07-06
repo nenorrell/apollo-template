@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import {Routes} from './Routes/routes';
 import onFinished from "on-finished"
 import {cyan, green} from "chalk";
@@ -7,25 +7,60 @@ import { Responses } from '../api/Responses';
 import { Rocket } from './Rocket';
 import { ErrorHandler } from '../api/ErrorHandler';
 import bodyParser from 'body-parser';
+// import { DB } from '../modules/db';
+import { Route } from './Routes/resources/Route';
 
+interface Apollo{
+    req :Request;
+    res :Response;
+    next :NextFunction;
+    // db ?:PoolConnection;
+    app :express.Application;
+    currentRoute :Route;
+}
 export class App{
-    public app: express.Application;
-    public port: number = 1337;
+    public app :express.Application;
+    public port :number = 1337;
+    // public db :PoolConnection;
 
     constructor(){
+        debug(cyan("Apollo Fueling up..."));
+        this.app = express();
+    }
+
+    public async setupApp() :Promise<void>{
         try{
-            this.app = express();
-            debug(cyan("Apollo Fueling up..."));
+            // this.db = await this.setupDb();
             this.setupBodyParsers();
             this.setupReqLogger();
             this.bindRoutes();
             this.setupErrorHandler();
         }
         catch(e){
-            error("Something went wrong in the setup", e)
+            throw e;
         }
     }
 
+    // private async setupDb() :Promise<PoolConnection>{
+    //     try{
+    //         debug(`Connecting to DB ${process.env.DB_HOST}...`);
+    //         const db = new DB();
+    //         db.createPool(
+    //             process.env.DB_HOST, 
+    //             process.env.DB_USER,
+    //             process.env.DB_PASSWORD,
+    //             process.env.DB,
+    //             3306
+    //         );
+    //         await db.connectPool();
+    //         debug(`Connected!`);
+    //         return db.connection;
+    //     }
+    //     catch(e){
+    //         throw e;
+    //     }
+    // }
+    
     private setupReqLogger() :void{
         this.app.use((req, res, next)=>{
             info("Logging request", {req});
@@ -50,9 +85,9 @@ export class App{
 
     private bindRoutes() :void{
         info("Binding Routes...")
-        new Routes().buildRoutesArray().forEach((route)=>{
+        new Routes().routesArray.forEach((route)=>{
             try{
-                this.app[route.method](route.path, (req, res, next)=>{
+                this.app[route.method](route.path, (req :Request, res :Response, next :NextFunction)=>{
                     let controller;
                     if(route.customControllerPath){
                         controller = require(`../api/${route.customControllerPath}`);
@@ -61,8 +96,16 @@ export class App{
                         controller = require(`../api/${route.controller}/${route.controller}.controller.ts`);
                     }
                     let controllerClassName = Object.keys(controller)[0];
-                    controller = new controller[controllerClassName](req, res, next, route)
-                    controller[route.action](req, res);
+                    let ApolloObj :Apollo = {
+                        req,
+                        res,
+                        next,
+                        // db: this.db,
+                        app: this.app,
+                        currentRoute: route
+                    }
+                    controller = new controller[controllerClassName](ApolloObj);
+                    controller[route.action](req, res, next);
                 });
             }
             catch(e){
