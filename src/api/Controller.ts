@@ -4,21 +4,27 @@ import { Route } from '../config/Routes/resources/Route';
 import { RouteParamType, ParamDataTypes} from '../config/Routes/resources/RouteParamType';
 import { formatError } from '../modules/utility';
 import { Policies } from '../config/Routes/Policies';
+import { Apollo } from '../config/App';
 // import { PoolConnection } from 'mysql';
 
 export class Controller{
     public responses :Responses;
-    
-    constructor(
-        private req :Request, 
-        private res :Response, 
-        public next :NextFunction, 
-        public route :Route,
-        // private db ?:PoolConnection
-    ){
+    private req :Request; 
+    private res :Response;
+    public next :NextFunction;
+    public route :Route;
+    // private db ?:PoolConnection;
+
+    constructor(Apollo :Apollo){
         try{
+            this.req = Apollo.req;
+            this.res = Apollo.res;
+            this.next = Apollo.next;
+            this.route = Apollo.currentRoute;
+            // this.db = Apollo.db;
+
             this.responses = new Responses(this.res);
-            this.checkPolicies(new Policies(req, res, next), route);
+            this.checkPolicies(new Policies(this.req, this.res, this.next), this.route);
             this.validatePathParams();
             this.validateQueryParams();
             this.validateReqBody();

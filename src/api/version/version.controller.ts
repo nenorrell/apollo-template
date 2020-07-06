@@ -2,12 +2,13 @@ import {Request, Response, NextFunction} from 'express';
 import {Controller} from "../Controller";
 import {VersionService} from "./version.service";
 import { Route } from '../../config/Routes/resources/Route';
+import { Apollo } from '../../config/App';
 
 export class VersionController extends Controller{
     private service :VersionService;
 
-    constructor(req :Request, res :Response, next :NextFunction, route :Route){
-        super(req, res, next, route);
+    constructor(Apollo :Apollo){
+        super(Apollo);
         this.service = new VersionService();
     }
 

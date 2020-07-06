@@ -10,7 +10,7 @@ import bodyParser from 'body-parser';
 // import { DB } from '../modules/db';
 import { Route } from './Routes/resources/Route';
 
-interface Apollo{
+export interface Apollo{
     req :Request;
     res :Response;
     next :NextFunction;
