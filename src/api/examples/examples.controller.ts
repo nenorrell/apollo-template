@@ -1,6 +1,4 @@
-import {Request, Response, NextFunction} from 'express';
 import {Controller} from "../Controller";
-import { Route } from '../../config/Routes/resources/Route';
 import { ExampleService } from './example.service';
 import { Apollo } from '../../config/App';
 

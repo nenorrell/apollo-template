@@ -1,7 +1,5 @@
-import {Request, Response, NextFunction} from 'express';
 import {Controller} from "../Controller";
 import {Routes} from "../../config/Routes/routes";
-import { Route } from '../../config/Routes/resources/Route';
 import { Apollo } from '../../config/App';
 
 export class VersionController extends Controller{
