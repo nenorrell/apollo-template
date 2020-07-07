@@ -1,11 +1,12 @@
 import { Route } from "../resources/Route";
 import { RouteParamType, ParamDataTypes } from "../resources/RouteParamType";
+import { PolicyOptions } from "../Policies";
 
 export const ComplexRoute :Route = new Route()
 .setMethod("POST")
 .setPath("/examples/complex/:someParam")
 .setDescription("This endpoint is an example of what a more complex route might look like")
-.setPolicies(["isAuthenticated"])
+// .setPolicies([PolicyOptions.isAuthenticated])
 .setCustomControllerPath("examples/examples.controller.ts")
 .setAction("index")
 .setPathParam([

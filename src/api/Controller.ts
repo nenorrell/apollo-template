@@ -3,8 +3,9 @@ import { Responses } from './Responses';
 import { Route } from '../config/Routes/resources/Route';
 import { RouteParamType, ParamDataTypes} from '../config/Routes/resources/RouteParamType';
 import { formatError } from '../modules/utility';
-import { Policies } from '../config/Routes/Policies';
+import { Policies, readPolicy } from '../config/Routes/Policies';
 import { Apollo } from '../config/App';
+// import { DB } from '../modules/db/db';
 
 export class Controller{
     protected responses :Responses;
@@ -36,7 +37,7 @@ export class Controller{
     private checkPolicies(policies :Policies, route :Route){
         if(route.policies){
             route.policies.forEach(policyName => {
-                policies.runPolicy(policyName)
+                policies.runPolicy(readPolicy(policyName))
             });
         }
     }

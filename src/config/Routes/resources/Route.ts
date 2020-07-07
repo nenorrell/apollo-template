@@ -1,4 +1,5 @@
 import { RouteParamType, ParamDataTypes } from "./RouteParamType";
+import { readPolicy, PolicyOptions } from "../Policies";
 
 export class Route {
     public path :PropertyKey;
@@ -6,7 +7,8 @@ export class Route {
     public controller :string;
     public customControllerPath :string;
     public action :PropertyKey;
-    public policies :Array<string>;
+    public policies :Array<PolicyOptions>;
+    public displayPolicies :Array<string>;
     public description :string;
     public pathParams :Array<RouteParamType>;
     public queryParams :Array<RouteParamType>;
@@ -43,8 +45,11 @@ export class Route {
         return this;
     }
 
-    public setPolicies(policies :Array<string>) :Route{
+    public setPolicies(policies :Array<PolicyOptions>) :Route{
         this.policies = policies;
+        this.displayPolicies = policies.map((policy :PolicyOptions)=>{
+            return readPolicy(policy);
+        });
         return this;
     }
 

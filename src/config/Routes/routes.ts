@@ -46,6 +46,7 @@ export class Routes{
                 path: route.path,
                 controller: route.controller,
                 action: route.action,
+                policies: route.displayPolicies,
                 description: route.description,
                 pathParams: route.formattedPathParams,
                 queryParams: route.formattedQueryParams,

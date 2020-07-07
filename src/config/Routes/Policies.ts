@@ -6,6 +6,13 @@ interface PolicyFunction{
     (req :Request, res :Response, next :NextFunction) :boolean;
 }
 
+export enum PolicyOptions{
+}
+
+export const readPolicy = (policy :PolicyOptions) :string=>{
+    return PolicyOptions[policy];
+}
+
 export class Policies{
     private res :Response;
     private req :Request;
@@ -20,7 +27,7 @@ export class Policies{
             this.setPolicies();
         }
         catch(e){
-            error("Failed setting up policies: ", e);
+            throw e;
         }
     }
 
@@ -29,20 +36,14 @@ export class Policies{
         return policy(this.req, this.res, this.next);
     }
 
-    private setPolicies() :void{
-        // An Example of how you would set your policy:
-        // 
-        // this.list.set("isAuthenticated", this.isAuthenticated);
+    private setPolicies() :void{        
+        for(let policy in PolicyOptions){
+            if(isNaN(Number(policy))){
+                if(typeof this[policy] !== "function"){
+                    throw `Error setting up policies: ${policy} is not a valid policyfunction`;
+                }
+                this.list.set(policy, this[policy])
+            }
+        }
     }
-
-    // An example of what a policy might look like:
-    // 
-    // private isAuthenticated(req :Request, res :Response, next :NextFunction) :boolean{
-    //     if(req.get("Authorization")) {
-    //         return true;
-    //     }
-    //     else{
-    //         throw formatError(401, "You're not authorized to make this request")
-    //     }
-    // }
 }

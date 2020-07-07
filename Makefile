@@ -47,11 +47,11 @@ integration-test-run:
 	docker run -i -v `pwd`:/usr/src/app -w /usr/src/app \
 	--network=apollo-api_test \
 	--entrypoint="./bin/wait-for-it.sh" \
-	node:${NODE} hockey-test-db:3336 \
+	node:${NODE} apollo-test-db:3336 \
 	--timeout=60 -- echo "Test DB available"
 	
 	docker exec -i `docker ps \
-	--format "{{.Names}}" | grep hockey-test-db` \
+	--format "{{.Names}}" | grep apollo-test-db` \
 	mysql -uroot -ppassword -P 3336 \
 	-e "drop database if exists test;create database test;"
 
@@ -61,7 +61,7 @@ integration-test-run:
 	-e RUN_TESTS_WITH_LOGS=${RUN_TESTS_WITH_LOGS} \
 	-e DB="test" \
 	-e DB_PORT="3336" \
-	-e DB_HOST=hockey-test-db \
+	-e DB_HOST=apollo-test-db \
     -e DB_USER="root" \
 	-e DB_PASSWORD="password" \
     -e ENV="local" \
