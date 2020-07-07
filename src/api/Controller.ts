@@ -1,19 +1,18 @@
-import {Request, Response, NextFunction, request} from 'express';
+import {Request, Response, NextFunction, request, query} from 'express';
 import { Responses } from './Responses';
 import { Route } from '../config/Routes/resources/Route';
 import { RouteParamType, ParamDataTypes} from '../config/Routes/resources/RouteParamType';
 import { formatError } from '../modules/utility';
 import { Policies } from '../config/Routes/Policies';
 import { Apollo } from '../config/App';
-// import { PoolConnection } from 'mysql';
 
 export class Controller{
-    public responses :Responses;
-    private req :Request; 
-    private res :Response;
-    public next :NextFunction;
-    public route :Route;
-    // private db ?:PoolConnection;
+    protected responses :Responses;
+    protected req :Request; 
+    protected res :Response;
+    protected next :NextFunction;
+    protected route :Route;
+    // protected db ?:DB;
 
     constructor(Apollo :Apollo){
         try{
@@ -71,7 +70,43 @@ export class Controller{
             if(!this.req.body){
                 throw formatError(400, "Payload is expected");
             }
+            this.validateReqBodyParams(this.route.bodySchema, null, this.req.body)
         }
+    }
+
+    private validateReqBodyParams(schema :Array<RouteParamType>, ancestor ?:RouteParamType, obj ?:any) :void{                
+        schema.forEach((param)=>this.validateReqBodyParam(param, ancestor, obj));
+    }
+
+    private validateReqBodyParam(schemaLevel :RouteParamType, ancestor ?:RouteParamType, obj ?:any){
+        if(ancestor){
+            if(Array.isArray(obj)){
+                obj.forEach((row)=>{
+                    this.processBodyReqRow(schemaLevel, row)
+                })
+            }
+            else{
+                this.processBodyReqRow(schemaLevel, obj)
+            }
+        }
+        else{
+            this.validateRequiredParam(schemaLevel, this.req.body[schemaLevel.name]);
+        }
+
+        if(schemaLevel.children){
+            if(Array.isArray(obj)){
+                obj.forEach((row)=>{
+                    this.validateReqBodyParams(schemaLevel.children, schemaLevel, row[schemaLevel.name])    
+                })
+            }
+            else{
+                this.validateReqBodyParams(schemaLevel.children, schemaLevel, obj[schemaLevel.name])
+            }
+        }
+    }
+
+    private processBodyReqRow(schemaLevel :RouteParamType, row ?:any){
+        this.validateRequiredParam(schemaLevel, row[schemaLevel.name]);
     }
 
     private validateRequiredParam(param :RouteParamType, requestParam :any) :void{
