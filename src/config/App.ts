@@ -7,21 +7,23 @@ import { Responses } from '../api/Responses';
 import { Rocket } from './Rocket';
 import { ErrorHandler } from '../api/ErrorHandler';
 import bodyParser from 'body-parser';
-// import { DB } from '../modules/db';
+import { DB } from '../modules/db/db';
+import { Pool, PoolConnection } from 'mysql';
+import { Controller } from '../api/Controller';
 import { Route } from './Routes/resources/Route';
 
 export interface Apollo{
     req :Request;
     res :Response;
     next :NextFunction;
-    // db ?:PoolConnection;
+    db ?:DB;
     app :express.Application;
     currentRoute :Route;
 }
 export class App{
     public app :express.Application;
     public port :number = 1337;
-    // public db :PoolConnection;
+    public db :DB;
 
     constructor(){
         debug(cyan("Apollo Fueling up..."));
@@ -41,25 +43,23 @@ export class App{
         }
     }
 
-    // private async setupDb() :Promise<PoolConnection>{
-    //     try{
-    //         debug(`Connecting to DB ${process.env.DB_HOST}...`);
-    //         const db = new DB();
-    //         db.createPool(
-    //             process.env.DB_HOST, 
-    //             process.env.DB_USER,
-    //             process.env.DB_PASSWORD,
-    //             process.env.DB,
-    //             3306
-    //         );
-    //         await db.connectPool();
-    //         debug(`Connected!`);
-    //         return db.connection;
-    //     }
-    //     catch(e){
-    //         throw e;
-    //     }
-    // }
+    private async setupDb() :Promise<DB>{
+        try{
+            const db = new DB();
+            db.createPool(
+                process.env.DB_HOST, 
+                process.env.DB_USER,
+                process.env.DB_PASSWORD,
+                process.env.DB,
+                process.env.DB_PORT
+            );
+            await db.connectPool();
+            return db;
+        }
+        catch(e){
+            throw e;
+        }
+    }
     
     private setupReqLogger() :void{
         this.app.use((req, res, next)=>{
@@ -74,7 +74,7 @@ export class App{
 
     private setupBodyParsers() :void{
         this.app.use(bodyParser.json());
-        this.app.use(bodyParser.urlencoded());
+        this.app.use(bodyParser.urlencoded({extended: true}));
     }
 
     private setupErrorHandler() :void{
@@ -88,7 +88,7 @@ export class App{
         new Routes().routesArray.forEach((route)=>{
             try{
                 this.app[route.method](route.path, (req :Request, res :Response, next :NextFunction)=>{
-                    let controller;
+                    let controller :Controller;
                     if(route.customControllerPath){
                         controller = require(`../api/${route.customControllerPath}`);
                     }
@@ -96,16 +96,17 @@ export class App{
                         controller = require(`../api/${route.controller}/${route.controller}.controller.ts`);
                     }
                     let controllerClassName = Object.keys(controller)[0];
-                    let ApolloObj :Apollo = {
+                    controller = new controller[controllerClassName](<Apollo>{
                         req,
                         res,
                         next,
-                        // db: this.db,
+                        db: this.db,
                         app: this.app,
                         currentRoute: route
-                    }
-                    controller = new controller[controllerClassName](ApolloObj);
-                    controller[route.action](req, res, next);
+                    });
+                    controller.checkPolicies()
+                    .then(()=>controller[route.action](req, res, next))
+                    .catch((e)=>{next(e)});
                 });
             }
             catch(e){

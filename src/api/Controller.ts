@@ -2,10 +2,10 @@ import {Request, Response, NextFunction, request, query} from 'express';
 import { Responses } from './Responses';
 import { Route } from '../config/Routes/resources/Route';
 import { RouteParamType, ParamDataTypes} from '../config/Routes/resources/RouteParamType';
-import { formatError } from '../modules/utility';
+import { formatError, asyncForEach } from '../modules/utility';
 import { Policies, readPolicy } from '../config/Routes/Policies';
 import { Apollo } from '../config/App';
-// import { DB } from '../modules/db/db';
+import { DB } from '../modules/db/db';
 
 export class Controller{
     protected responses :Responses;
@@ -13,18 +13,17 @@ export class Controller{
     protected res :Response;
     protected next :NextFunction;
     protected route :Route;
-    // protected db ?:DB;
+    protected db ?:DB;
 
-    constructor(Apollo :Apollo){
+    constructor(private Apollo :Apollo){
         try{
             this.req = Apollo.req;
             this.res = Apollo.res;
             this.next = Apollo.next;
             this.route = Apollo.currentRoute;
-            // this.db = Apollo.db;
+            this.db = Apollo.db;
 
             this.responses = new Responses(this.res);
-            this.checkPolicies(new Policies(this.req, this.res, this.next), this.route);
             this.validatePathParams();
             this.validateQueryParams();
             this.validateReqBody();
@@ -34,10 +33,11 @@ export class Controller{
         }
     }
 
-    private checkPolicies(policies :Policies, route :Route){
-        if(route.policies){
-            route.policies.forEach(policyName => {
-                policies.runPolicy(readPolicy(policyName))
+    public async checkPolicies(){
+        let policies = new Policies(this.Apollo)
+        if(this.route.policies){
+            await asyncForEach(this.route.policies, async policyName => {
+                await policies.runPolicy(readPolicy(policyName))
             });
         }
     }
@@ -134,7 +134,7 @@ export class Controller{
             }
         }
     }
-
+    
     private isValidTypes(type :ParamDataTypes, paramValue :any) :Boolean{
         let isValid :Boolean = true;
         switch(type){
@@ -149,6 +149,7 @@ export class Controller{
                 if(isNaN(parseInt(paramValue))){
                     isValid = false;
                 }
+                paramValue = parseInt(paramValue);
                 break;
             
             case ParamDataTypes.object:

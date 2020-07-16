@@ -65,14 +65,13 @@ integration-test-run:
     -e DB_USER="root" \
 	-e DB_PASSWORD="password" \
     -e ENV="local" \
-    -e JWT_PRIVATE="aGr5kq@TQ99ufybsbpvPQ^eK%x9BZbb2U9yF@AIbtmf4I*&B0X76427asdu" \
 	-v `pwd`:/usr/src/app -w /usr/src/app node:${NODE} \
 	node_modules/.bin/nyc \
 	node_modules/.bin/mocha \
 	--require ts-node/register \
 	--require ./tests/testHelper.js \
 	--require @babel/polyfill \
-	./build/build.js $(INTEGRATION_TEST) -R spec --color --verbose --exit
+	$(INTEGRATION_TEST) -R spec --color --verbose --exit
 
 compile:
 	docker run -i --rm --name compile-apollo-api -e NODE_ENV=test -v `pwd`:/usr/src/app -w /usr/src/app node:${NODE} npm run webpack

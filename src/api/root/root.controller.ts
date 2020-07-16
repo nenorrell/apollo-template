@@ -1,5 +1,5 @@
-import {Controller} from "../Controller";
 import { Apollo } from '../../config/App';
+import {Controller} from "../Controller";
 
 export class VersionController extends Controller{
     constructor(Apollo :Apollo){

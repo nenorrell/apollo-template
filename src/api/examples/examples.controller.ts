@@ -1,6 +1,6 @@
+import { Apollo } from '../../config/App';
 import {Controller} from "../Controller";
 import { ExampleService } from './example.service';
-import { Apollo } from '../../config/App';
 
 export class ComplexExample extends Controller{
     private service :ExampleService;

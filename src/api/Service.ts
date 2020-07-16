@@ -1,7 +1,11 @@
-import {Request, Response} from 'express';
+import { Apollo } from '../config/App';
+import { DB } from '../modules/db/db';
 
 export class Service{
-    public validator(validations :Map<String, Boolean>){
-
+    protected db ?:DB;
+    constructor(private Apollo ?:Apollo){
+        if(Apollo){
+            this.db = this.Apollo.db;
+        }
     }
 }

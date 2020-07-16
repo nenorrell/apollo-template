@@ -1,18 +1,11 @@
 import request from "supertest";
 import {expect} from "chai";
-import * as sinon from "sinon";
 import {app} from "../testApp";
-let App;
-
-before(async ()=>{
-    await app.setupApp()
-    App = app.getApp();
-});
 
 describe('Version', ()=> {
     describe("GET /version", async ()=> {
         it('Should return version as expected', async ()=>{
-            await request(App)
+            await request(app.getApp())
             .get("/version")
             .expect(200)
             .expect(res => {

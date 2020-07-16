@@ -1,6 +1,6 @@
+import { Apollo } from '../../config/App';
 import {Controller} from "../Controller";
 import {Routes} from "../../config/Routes/routes";
-import { Apollo } from '../../config/App';
 
 export class VersionController extends Controller{
     private service :Routes;
