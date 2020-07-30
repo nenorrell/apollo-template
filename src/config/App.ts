@@ -1,14 +1,13 @@
 import express, { Request, Response, NextFunction } from 'express';
 import {Routes} from './Routes/routes';
 import onFinished from "on-finished"
-import {cyan, green} from "chalk";
+import {yellow, green} from "chalk";
 import {info, debug, error} from "../modules/logger";
 import { Responses } from '../api/Responses';
 import { Rocket } from './Rocket';
 import { ErrorHandler } from '../api/ErrorHandler';
 import bodyParser from 'body-parser';
 import { DB } from '../modules/db/db';
-import { Pool, PoolConnection } from 'mysql';
 import { Controller } from '../api/Controller';
 import { Route } from './Routes/resources/Route';
 
@@ -26,39 +25,25 @@ export class App{
     public db :DB;
 
     constructor(){
-        debug(cyan("Apollo Fueling up..."));
+        info("Apollo Fueling up...");
         this.app = express();
+        this.db = this.setupDb();
+        this.setupBodyParsers();
+        this.setupReqLogger();
+        this.bindRoutes();
+        this.setupErrorHandler();
     }
 
-    public async setupApp() :Promise<void>{
-        try{
-            // this.db = await this.setupDb();
-            this.setupBodyParsers();
-            this.setupReqLogger();
-            this.bindRoutes();
-            this.setupErrorHandler();
-        }
-        catch(e){
-            throw e;
-        }
-    }
-
-    private async setupDb() :Promise<DB>{
-        try{
-            const db = new DB();
-            db.createPool(
-                process.env.DB_HOST, 
-                process.env.DB_USER,
-                process.env.DB_PASSWORD,
-                process.env.DB,
-                process.env.DB_PORT
-            );
-            await db.connectPool();
-            return db;
-        }
-        catch(e){
-            throw e;
-        }
+    private setupDb() :DB{
+        const db = new DB();
+        db.createPool(
+            process.env.DB_HOST, 
+            process.env.DB_USER,
+            process.env.DB_PASSWORD,
+            process.env.DB,
+            process.env.DB_PORT
+        );
+        return db;
     }
     
     private setupReqLogger() :void{
@@ -84,30 +69,42 @@ export class App{
     }
 
     private bindRoutes() :void{
-        info("Binding Routes...")
+        debug("Binding Routes...")
         new Routes().routesArray.forEach((route)=>{
             try{
-                this.app[route.method](route.path, (req :Request, res :Response, next :NextFunction)=>{
-                    let controller :Controller;
-                    if(route.customControllerPath){
-                        controller = require(`../api/${route.customControllerPath}`);
-                    }
-                    else{
-                        controller = require(`../api/${route.controller}/${route.controller}.controller.ts`);
-                    }
-                    let controllerClassName = Object.keys(controller)[0];
-                    controller = new controller[controllerClassName](<Apollo>{
-                        req,
-                        res,
-                        next,
-                        db: this.db,
-                        app: this.app,
-                        currentRoute: route
+                if(route.excludedEnvironments && route.excludedEnvironments.includes(process.env.ENV)){
+                    info(yellow(`Excluding ${route.path} for this environment`));
+                }
+                else{
+                    this.app[route.method](route.path, async (req :Request, res :Response, next :NextFunction)=>{
+                        try{
+                            let controller :Controller;
+                            await this.db.connectPool();
+    
+                            if(route.customControllerPath){
+                                controller = require(`../api/${route.customControllerPath}`);
+                            }
+                            else{
+                                controller = require(`../api/${route.controller}/${route.controller}.controller.ts`);
+                            }
+                            let controllerClassName = Object.keys(controller)[0];
+                            controller = new controller[controllerClassName](<Apollo>{
+                                req,
+                                res,
+                                next,
+                                db: this.db,
+                                app: this.app,
+                                currentRoute: route
+                            });
+                            
+                            await controller.checkPolicies()
+                            controller[route.action](req, res, next);
+                        }
+                        catch(e){
+                            next(e);
+                        }
                     });
-                    controller.checkPolicies()
-                    .then(()=>controller[route.action](req, res, next))
-                    .catch((e)=>{next(e)});
-                });
+                }
             }
             catch(e){
                 error("FAILED BINDING ROUTE: ", e);
@@ -137,7 +134,7 @@ export class App{
     public listen(){
         this.app.listen(this.port, () => {
             new Rocket().launch();
-            debug(green(`Apollo API has launched on port ${this.port}!`))
+            info(green(`Apollo API has launched on port ${this.port}!`))
         })
     }
 

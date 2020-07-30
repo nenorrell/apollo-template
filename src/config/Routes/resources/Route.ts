@@ -2,7 +2,7 @@ import { RouteParamType, ParamDataTypes } from "./RouteParamType";
 import { readPolicy, PolicyOptions } from "../Policies";
 
 export class Route {
-    public path :PropertyKey;
+    public path :string;
     public method :PropertyKey;
     public controller :string;
     public customControllerPath :string;
@@ -16,13 +16,14 @@ export class Route {
     public formattedPathParams :any;    
     public formattedBodySchema :any;
     public formattedQueryParams :any;
+    public excludedEnvironments :Array<string>;
 
     public setMethod(method :PropertyKey) :Route{
         this.method = method.toString().toLocaleLowerCase();
         return this;
     }
 
-    public setPath(path :PropertyKey) :Route{
+    public setPath(path :string) :Route{
         this.path = path;
         return this;
     }
@@ -73,6 +74,11 @@ export class Route {
     public setBodySchema(bodySchema :Array<RouteParamType>) :Route{
         this.bodySchema = bodySchema;
         this.formattedBodySchema = this.buildSchema(bodySchema);
+        return this;
+    }
+
+    public setExcludedEnvironments(environments :Array<string>) :Route{
+        this.excludedEnvironments = environments;
         return this;
     }
 

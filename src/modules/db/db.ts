@@ -1,8 +1,7 @@
-import { Pool, createPool, PoolConnection, FieldInfo } from "mysql"
-import { info, debug } from "../logger";
-import { ColumnArray, ColumnMap, FieldType, QueryOptions, ColumnValueObject } from "./dbTypes";
+import { Pool, createPool, PoolConnection, escape } from "mysql"
+import { debug } from "../logger";
+import { ColumnArray, FieldType, QueryOptions, ColumnValueObject } from "./dbTypes";
 import { camelCaseToUnderscore, objKeysToCamelCase, asyncForEach } from "../utility";
-import { values } from "lodash";
 
 export class DB{
     public pool :Pool;
@@ -24,7 +23,6 @@ export class DB{
     public async connectPool(){
         try{
             this.connection = await this.getPoolConnection();
-            debug(`Connected!`);
         }
         catch(e){
             throw e;
@@ -117,7 +115,7 @@ export class DB{
                 sql += ` ${field.operator} `;
             }
             
-            sql += `${field.name}=${this.connection.escape(field.value)}`;  
+            sql += `${field.name}=${escape(field.value)}`;
         })
         return sql;
     }

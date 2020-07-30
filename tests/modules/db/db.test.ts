@@ -62,7 +62,7 @@ describe('DB', ()=> {
                 value: "someValue"
             }])
             expect(sql).to.be.a("string");
-            expect(sql).to.eq("SELECT some_field, some_other_field FROM some_table WHERE some_field=someValue");
+            expect(sql).to.eq("SELECT some_field, some_other_field FROM some_table WHERE some_field='someValue'");
         });
         
         it("Should omit operator when there's only one where value", async ()=>{
@@ -72,7 +72,7 @@ describe('DB', ()=> {
                 operator: "AND"
             }]);
             expect(sql).to.be.a("string");
-            expect(sql).to.eq("SELECT some_field, some_other_field FROM some_table WHERE some_field=someValue");
+            expect(sql).to.eq("SELECT some_field, some_other_field FROM some_table WHERE some_field='someValue'");
         });
         
         it("Should omit operator when there's only one where value", async ()=>{
@@ -88,7 +88,7 @@ describe('DB', ()=> {
                 }
             ]);
             expect(sql).to.be.a("string");
-            expect(sql).to.eq("SELECT some_field, some_other_field FROM some_table WHERE some_field=someValue AND some_field=someOtherValue");
+            expect(sql).to.eq("SELECT some_field, some_other_field FROM some_table WHERE some_field='someValue' AND some_field='someOtherValue'");
         });
     })
 
@@ -132,7 +132,7 @@ describe('DB', ()=> {
                     operator: "OR"
                 }
             ]);
-            expect(whereClause).to.eq("WHERE some_column=someValue AND some_column=someOtherValue AND id=1 OR id=3")
+            expect(whereClause).to.eq("WHERE some_column='someValue' AND some_column='someOtherValue' AND id=1 OR id=3")
         });
         
         it("Should omit operator from where clause when there's only one item", async ()=>{
@@ -144,7 +144,7 @@ describe('DB', ()=> {
                 }
             ])
 
-            expect(whereClause).to.eq("WHERE some_column=someValue")
+            expect(whereClause).to.eq("WHERE some_column='someValue'")
         })
     })
 });

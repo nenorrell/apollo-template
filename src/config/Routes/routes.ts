@@ -20,6 +20,7 @@ export class Routes{
     private apiDoc :Route = new Route()
     .setMethod("GET")
     .setPath("/api/doc")
+    .setExcludedEnvironments(['prod'])
     .setDescription("This endpoint will display currently configured routes")
     .setController("api-docs")
     .setAction("displayRoutes");
