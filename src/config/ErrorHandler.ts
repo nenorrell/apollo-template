@@ -1,7 +1,7 @@
 import { Response } from "express";
 import { Responses } from "./Responses";
-import { ErrorInterface } from "../config/resources/ErrorInterface";
-import {info, debug, error} from "../modules/logger";
+import { ErrorInterface } from "./resources/ErrorInterface";
+import {error} from "../modules/logger";
 
 export class ErrorHandler{
     private res :Response;

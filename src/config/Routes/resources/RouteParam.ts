@@ -6,33 +6,37 @@ export enum ParamDataTypes{
     'array'
 }
 
-export class RouteParamType{
+export class RouteParam{
     public name :string;
-    public children :Array<RouteParamType>;
+    public children :Array<RouteParam>;
     public required :Boolean;
     public type :ParamDataTypes;
-    public typeDisplayValue :string;
     public description :string;
+    private typeDisplayValue :string;
 
-    public setName(name :string) :RouteParamType{
+    public setName(name :string) :RouteParam{
         this.name = name;
         return this;
     }
-    public setChildren(children :Array<RouteParamType>) :RouteParamType{
+    public setChildren(children :Array<RouteParam>) :RouteParam{
         this.children = children;
         return this;
     }
-    public setRequired(required :Boolean) :RouteParamType{
+    public setRequired(required :Boolean) :RouteParam{
         this.required = required;
         return this;
     }
-    public setType(type :ParamDataTypes) :RouteParamType{
+    public setType(type :ParamDataTypes) :RouteParam{
         this.type = type;
         this.typeDisplayValue = ParamDataTypes[type];
         return this;
     }
-    public setDescription(description :string) :RouteParamType{
+    public setDescription(description :string) :RouteParam{
         this.description = description;
         return this;
+    }
+
+    public getTypeDisplayValue() :string{
+        return this.typeDisplayValue;
     }
 }

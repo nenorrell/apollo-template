@@ -1,6 +1,5 @@
 import {Route} from './resources/Route';
-import { RouteParamType, ParamDataTypes } from './resources/RouteParamType';
-// import { ComplexRoute } from './Examples/ExampleComplex';
+import { RouteParam, ParamDataTypes } from './resources/RouteParam';
 import { cleanObject } from '../../modules/utility';
 
 export class Routes{
@@ -17,9 +16,23 @@ export class Routes{
     .setAction("getVersion")
     .setDescription("This endpoint will display the current Git Hash you have checked out.");
 
-    private apiDoc :Route = new Route()
+    private certChallenge :Route = new Route()
     .setMethod("GET")
-    .setPath("/api/doc")
+    .setPath("/.well-known/acme-challenge/:challengeString")
+    .setPathParams([
+        new RouteParam()
+        .setName("challengeString")
+        .setType(ParamDataTypes.string)
+        .setRequired(true)
+    ])
+    .setController("root")
+    .setAction("certbot")
+    .setExcludedEnvironments(["local", "qa"])
+    .setDescription("This endpoint is only for certbot to authenticate against")
+
+    private apiDocs :Route = new Route()
+    .setMethod("GET")
+    .setPath("/api/docs")
     .setExcludedEnvironments(['prod'])
     .setDescription("This endpoint will display currently configured routes")
     .setController("api-docs")
@@ -28,8 +41,8 @@ export class Routes{
     public baseRoutes :Array<Route> = [
         this.root,
         this.version,
-        this.apiDoc
-        // ComplexRoute
+        this.apiDocs,
+        this.certChallenge
     ];
 
     public routesArray :Array<Route> = [
@@ -47,11 +60,11 @@ export class Routes{
                 path: route.path,
                 controller: route.controller,
                 action: route.action,
-                policies: route.displayPolicies,
+                policies: route.getDisplayPolicies(),
                 description: route.description,
-                pathParams: route.formattedPathParams,
-                queryParams: route.formattedQueryParams,
-                bodySchema: route.formattedBodySchema
+                pathParams: route.getFormattedPathParams(),
+                queryParams: route.getFormattedQueryParams(),
+                bodySchema: route.getFormattedBodySchema()
             }
             if(returnObj.pathParams){
                 this.cleanRouteParams(returnObj.pathParams)
@@ -67,7 +80,7 @@ export class Routes{
         });
     }
 
-    private cleanRouteParams(params :Array<RouteParamType>){
+    private cleanRouteParams(params :Array<RouteParam>){
         params.forEach((param)=>{
             cleanObject(param);
         })

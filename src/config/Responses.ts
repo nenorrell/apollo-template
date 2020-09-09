@@ -6,12 +6,20 @@ export class Responses{
         this.res = res;
     }
 
+    public responseText(code :number, data :any) :void{
+        this.res.status(code).send(data);
+    }
+
     public responseObject(code :number, data :any) :void{
         this.res.status(code).json({
             response: data,
             code: code
         });
     }
+
+    // public paginatedResponse(code :number, data:Array<any>, paging) :void{
+
+    // }
 
     public responseArray(code :number, data :Array<any>) :void{
         this.res.status(code).json({

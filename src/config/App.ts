@@ -1,24 +1,19 @@
 import express, { Request, Response, NextFunction } from 'express';
+import fs from "fs";
+import path from "path";
+import https from "https";
 import {Routes} from './Routes/routes';
 import onFinished from "on-finished"
 import {yellow, green} from "chalk";
 import {info, debug, error} from "../modules/logger";
-import { Responses } from '../api/Responses';
+import { Responses } from './Responses';
 import { Rocket } from './Rocket';
-import { ErrorHandler } from '../api/ErrorHandler';
+import { ErrorHandler } from './ErrorHandler';
 import bodyParser from 'body-parser';
 import { DB } from '../modules/db/db';
 import { Controller } from '../api/Controller';
-import { Route } from './Routes/resources/Route';
+import { buildApolloObj } from './Apollo';
 
-export interface Apollo{
-    req :Request;
-    res :Response;
-    next :NextFunction;
-    db ?:DB;
-    app :express.Application;
-    currentRoute :Route;
-}
 export class App{
     public app :express.Application;
     public port :number = 1337;
@@ -49,8 +44,12 @@ export class App{
     private setupReqLogger() :void{
         this.app.use((req, res, next)=>{
             info("Logging request", {req});
-        
+
             onFinished(res, (err, res)=>{
+                const dbState = (this.db.connection||{}).state;
+                if( dbState === "connected" || dbState == "authenticated"){
+                    this.db.connection.release();
+                }
                 info("Logging response", {res});
             });
             next();
@@ -76,6 +75,7 @@ export class App{
                     info(yellow(`Excluding ${route.path} for this environment`));
                 }
                 else{
+                    debug(`Binding ${route.path}`);
                     this.app[route.method](route.path, async (req :Request, res :Response, next :NextFunction)=>{
                         try{
                             let controller :Controller;
@@ -88,15 +88,8 @@ export class App{
                                 controller = require(`../api/${route.controller}/${route.controller}.controller.ts`);
                             }
                             let controllerClassName = Object.keys(controller)[0];
-                            controller = new controller[controllerClassName](<Apollo>{
-                                req,
-                                res,
-                                next,
-                                db: this.db,
-                                app: this.app,
-                                currentRoute: route
-                            });
-                            
+                            buildApolloObj(req, res, next, this.db, this.app, route);
+                            controller = new controller[controllerClassName]();                            
                             await controller.checkPolicies()
                             controller[route.action](req, res, next);
                         }
@@ -131,11 +124,51 @@ export class App{
         new Responses(res).notFound(`${method} ${req.path} is not a valid operation`);
     }
 
-    public listen(){
+    private setupHttpsServer() :void{
+        try{
+            let filePath = path.resolve(__dirname, `/ssl-config/certbot/letsencrypt/live/api.ahahockey.com`);
+            let key = fs.readFileSync(`${filePath}/privkey.pem`);
+            let cert = fs.readFileSync(`${filePath}/cert.pem`);
+            this.rerouteHttpToHttps();  
+            https.createServer({
+                key,
+                cert
+            }, this.app)
+            .listen(443);
+            
+            new Rocket().launch();
+            info(green(`Apollo API has launched on port ${443}!`))
+            
+        }
+        catch(err){
+            error("Failed to launch https server. Falling back to the regular http server...", err);
+            this.setupHttpServer();
+        }
+    }
+
+    private setupHttpServer() :void{
         this.app.listen(this.port, () => {
             new Rocket().launch();
             info(green(`Apollo API has launched on port ${this.port}!`))
-        })
+        });
+    }
+
+    private rerouteHttpToHttps() :void{
+        this.app.use((req, res, next)=>{
+            if(!req.secure){
+                return res.redirect(['https://', req.get('Host'), req.url].join(''));
+            }
+            next();
+        });
+    }
+
+    public listen(){
+        if(process.env.ENV == "prod"){
+            this.setupHttpsServer();
+        }
+        else{
+            this.setupHttpServer();
+        }
     }
 
     public getApp() :express.Application{

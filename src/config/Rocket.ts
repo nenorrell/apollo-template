@@ -1,9 +1,9 @@
 import {green, yellow} from "chalk"
-import {info, debug, error} from "../modules/logger";
+import {debug} from "../modules/logger";
 
 export class Rocket{
     public launch(){
-        info(`${green(`
+        debug(`${green(`
        ^
       / \\
      /___\\

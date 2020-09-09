@@ -1,58 +1,58 @@
 import { Route } from "../resources/Route";
-import { RouteParamType, ParamDataTypes } from "../resources/RouteParamType";
+import { RouteParam, ParamDataTypes } from "../resources/RouteParam";
 import { PolicyOptions } from "../Policies";
 
 export const ComplexRoute :Route = new Route()
 .setMethod("POST")
 .setPath("/examples/complex/:someParam")
 .setDescription("This endpoint is an example of what a more complex route might look like")
-// .setPolicies([PolicyOptions.isAuthenticated])
+.setPolicies([PolicyOptions.isAuthenticated])
 .setCustomControllerPath("examples/examples.controller.ts")
 .setAction("index")
-.setPathParam([
-    new RouteParamType()
+.setPathParams([
+    new RouteParam()
     .setName("someParam")
     .setType(ParamDataTypes.number)
     .setRequired(true)
 ])
 .setQueryParams([
-    new RouteParamType()
+    new RouteParam()
     .setName("test")
     .setRequired(true)
     .setType(ParamDataTypes.string)
 ])
 .setBodySchema([
-    new RouteParamType()
+    new RouteParam()
     .setName("group")
     .setDescription("Group object")
     .setRequired(true)
     .setType(ParamDataTypes.object)
     .setChildren([
-        new RouteParamType()
+        new RouteParam()
         .setName("name")
         .setDescription("The Name of the group")
         .setRequired(true)
         .setType(ParamDataTypes.string),
 
-        new RouteParamType()
+        new RouteParam()
         .setName("Level")
         .setDescription("The level of the group")
         .setRequired(true)
         .setType(ParamDataTypes.string),
 
-        new RouteParamType()
+        new RouteParam()
         .setName("members")
-        .setDescription("The level of the group")
+        .setDescription("An array of the group members")
         .setRequired(true)
         .setType(ParamDataTypes.array)
         .setChildren([
-            new RouteParamType()
+            new RouteParam()
             .setName("name")
             .setDescription("The name of the group user")
             .setRequired(true)
             .setType(ParamDataTypes.string),
 
-            new RouteParamType()
+            new RouteParam()
             .setName("level")
             .setDescription("The level of the group user")
             .setRequired(true)

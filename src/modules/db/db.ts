@@ -1,6 +1,6 @@
 import { Pool, createPool, PoolConnection, escape } from "mysql"
 import { debug } from "../logger";
-import { ColumnArray, FieldType, QueryOptions, ColumnValueObject } from "./dbTypes";
+import { ColumnArray, Field, QueryOptions } from "./db.types";
 import { camelCaseToUnderscore, objKeysToCamelCase, asyncForEach } from "../utility";
 
 export class DB{
@@ -72,6 +72,22 @@ export class DB{
         }
     }
 
+    private async buildUpdateValues(insertObject :any) :Promise<string>{
+        let updateValues = ``;
+
+        await asyncForEach(Object.keys(insertObject), (column :string, index :number, columns :Array<any>) =>{
+            let value = this.handleInsertValue(insertObject[column]);
+            column = camelCaseToUnderscore(column);
+            if(columns.length-1 === index){
+                updateValues += `${column}=${value}`;
+            }
+            else{
+                updateValues += `${column}=${value}, `;
+            }
+        });
+        return `${updateValues}`;
+    }
+
     private async buildInsertValues(insertObject :any) :Promise<string>{
         let cols :string = "";
         let vals :string = "";
@@ -91,7 +107,7 @@ export class DB{
         return `(${cols}) VALUES (${vals})`;
     }
 
-    private async buildFetch(table :string, fields :ColumnArray | string, where :Array<FieldType>, options ?:QueryOptions) :Promise<string>{
+    private async buildFetch(table :string, fields :ColumnArray | string, where :Array<Field>, options ?:QueryOptions) :Promise<string>{
         let selectFields = await this.buildFields(fields);
         let whereFields = await this.buildWhere(where);
         let sql = `SELECT ${selectFields} FROM ${table} ${whereFields}`;
@@ -106,10 +122,10 @@ export class DB{
         return sql;
     }
 
-    private async buildWhere(fields :Array<FieldType>) :Promise<string>{
+    private async buildWhere(fields :Array<Field>) :Promise<string>{
         let sql = "WHERE ";
 
-        await asyncForEach(fields, (field :FieldType, index :number, fields :Array<any>)=>{
+        await asyncForEach(fields, (field :Field, index :number, fields :Array<any>)=>{
             field.name = camelCaseToUnderscore(field.name);
             if(fields.length > 1 && field.operator){
                 sql += ` ${field.operator} `;
@@ -120,7 +136,7 @@ export class DB{
         return sql;
     }
 
-    private async buildDelete(table :string, where :Array<FieldType>) :Promise<string>{
+    private async buildDelete(table :string, where :Array<Field>) :Promise<string>{
         let whereFields = await this.buildWhere(where);
         return `DELETE FROM ${table} ${whereFields}`;
     }
@@ -141,7 +157,7 @@ export class DB{
         });
     }
 
-    public async find(table :string, fields :string|ColumnArray, where :Array<FieldType>, options ?:QueryOptions) :Promise<any>{
+    public async find(table :string, fields :string|ColumnArray, where :Array<Field>, options ?:QueryOptions) :Promise<Array<any>>{
         try{
             table = camelCaseToUnderscore(table);
             let sql = await this.buildFetch(table, fields, where, options);
@@ -152,12 +168,23 @@ export class DB{
         }
     }
 
-    public async findOne(table :string, fields :string|ColumnArray, where :Array<FieldType>, options ?:QueryOptions) :Promise<any>{
+    public async findOne(table :string, fields :string|ColumnArray, where :Array<Field>, options ?:QueryOptions) :Promise<any>{
+        try{
+            let result = await this.find(table, fields, where, options);
+            return result.length != 0 ? result[0] : null;
+        }
+        catch(e){
+            throw e;
+        }
+    }
+
+    public async update(table :string, updateObject :any, where :Array<Field>, options ?:QueryOptions) :Promise<any>{
         try{
             table = camelCaseToUnderscore(table);
-            let sql = await this.buildFetch(table, fields, where, options);
-            let result = await this.query(sql);
-            return result.length != 0 ? result[0] : null;
+            let updateValues = await this.buildUpdateValues(updateObject);
+            let whereFields = await this.buildWhere(where);
+            let sql = `UPDATE ${table} SET ${updateValues} WHERE ${whereFields}`;
+            return await this.query(sql, true);
         }
         catch(e){
             throw e;
@@ -186,7 +213,7 @@ export class DB{
         }
     }
 
-    public async delete(table :string, where :Array<FieldType>) :Promise<any>{
+    public async delete(table :string, where :Array<Field>) :Promise<any>{
         try{
             table = camelCaseToUnderscore(table);
             let sql = await this.buildDelete(table, where);

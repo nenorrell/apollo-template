@@ -1,12 +1,11 @@
-import { Apollo } from '../../config/App';
 import {Controller} from "../Controller";
 import { ExampleService } from './example.service';
 
 export class ComplexExample extends Controller{
     private service :ExampleService;
 
-    constructor(Apollo :Apollo){
-        super(Apollo);
+    constructor(){
+        super();
         this.service = new ExampleService();
     }
 

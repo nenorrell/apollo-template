@@ -1,10 +1,6 @@
-import { NextFunction, Response, Request } from "express";
-import { Apollo } from "../App";
-import { DB } from "../../modules/db/db";
-
-interface PolicyFunction{
-    (req :Request, res :Response, next :NextFunction, db ?:DB) :boolean;
-}
+import { formatError } from "../../modules/utility";
+import { validateToken, readToken } from "../../modules/Auth/Auth";
+import { Apollo } from "../Apollo";
 
 export enum PolicyOptions{
 }
@@ -14,18 +10,10 @@ export const readPolicy = (policy :PolicyOptions) :string=>{
 }
 
 export class Policies{
-    private db :DB;
-    private res :Response;
-    private req :Request;
-    public next :NextFunction;
-    private list :Map<String, PolicyFunction> = new Map();
-
-    constructor(Apollo :Apollo){
+    private list :Map<String, Function> = new Map();
+    
+    constructor(){
         try{
-            this.req = Apollo.req;
-            this.res = Apollo.res;
-            this.next = Apollo.next;
-            this.db = Apollo.db;
             this.setPolicies();
         }
         catch(e){
@@ -35,7 +23,7 @@ export class Policies{
 
     public async runPolicy(policyName :string) :Promise<void>{
         const policy = this.list.get(policyName);
-        await policy(this.req, this.res, this.next, this.db);
+        await policy();
     }
 
     private setPolicies() :void{        

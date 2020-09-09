@@ -1,4 +1,4 @@
-import { RouteParamType, ParamDataTypes } from "./RouteParamType";
+import { RouteParam, ParamDataTypes } from "./RouteParam";
 import { readPolicy, PolicyOptions } from "../Policies";
 
 export class Route {
@@ -8,14 +8,14 @@ export class Route {
     public customControllerPath :string;
     public action :PropertyKey;
     public policies :Array<PolicyOptions>;
-    public displayPolicies :Array<string>;
     public description :string;
-    public pathParams :Array<RouteParamType>;
-    public queryParams :Array<RouteParamType>;
-    public bodySchema :Array<RouteParamType>;
-    public formattedPathParams :any;    
-    public formattedBodySchema :any;
-    public formattedQueryParams :any;
+    public pathParams :Array<RouteParam>;
+    public queryParams :Array<RouteParam>;
+    public bodySchema :Array<RouteParam>;
+    private displayPolicies :Array<string>;
+    private formattedPathParams :any;    
+    private formattedBodySchema :any;
+    private formattedQueryParams :any;
     public excludedEnvironments :Array<string>;
 
     public setMethod(method :PropertyKey) :Route{
@@ -59,19 +59,19 @@ export class Route {
         return this;
     }
 
-    public setPathParam(params :Array<RouteParamType>) :Route{
+    public setPathParams(params :Array<RouteParam>) :Route{
         this.pathParams = params;
         this.formattedPathParams = this.formatParams(params);
         return this;
     }
 
-    public setQueryParams(queryParams :Array<RouteParamType>) :Route{
+    public setQueryParams(queryParams :Array<RouteParam>) :Route{
         this.queryParams = queryParams;
         this.formattedQueryParams = this.formatParams(queryParams);
         return this;
     }
 
-    public setBodySchema(bodySchema :Array<RouteParamType>) :Route{
+    public setBodySchema(bodySchema :Array<RouteParam>) :Route{
         this.bodySchema = bodySchema;
         this.formattedBodySchema = this.buildSchema(bodySchema);
         return this;
@@ -82,13 +82,29 @@ export class Route {
         return this;
     }
 
-    private formatParams(queryParams :Array<RouteParamType>) :any{
+    public getDisplayPolicies() :Array<string>{
+        return this.displayPolicies;
+    }
+
+    public getFormattedPathParams() :any{
+        return this.formattedPathParams;
+    }
+
+    public getFormattedQueryParams() :any{
+        return this.formattedQueryParams;
+    }
+
+    public getFormattedBodySchema() :any{
+        return this.formattedBodySchema;
+    }
+
+    private formatParams(queryParams :Array<RouteParam>) :any{
         return queryParams.map((param)=>{
             return this.formatParam(param);
         });
     }
 
-    private buildSchema(level :Array<RouteParamType>) :any{
+    private buildSchema(level :Array<RouteParam>) :any{
         let schema :any = {};
         level.forEach((item)=>{
             schema[item.name] = this.buildBodySchemaLevel(item)
@@ -96,7 +112,7 @@ export class Route {
         return schema;
     }
 
-    private buildBodySchemaLevel(item :RouteParamType) :any{
+    private buildBodySchemaLevel(item :RouteParam) :any{
         let obj :any = {};
         if(item.children){
             if(item.type === ParamDataTypes.object){
@@ -112,12 +128,12 @@ export class Route {
         return obj;
     }
     
-    private formatParam(item :RouteParamType) :any{
+    private formatParam(item :RouteParam) :any{
         return {
             name: item.name,
             description: item.description,
             required: item.required,
-            type: item.typeDisplayValue
+            type: item.getTypeDisplayValue()
         }
     }
 }

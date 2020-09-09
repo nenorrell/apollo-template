@@ -1,12 +1,11 @@
-import { Apollo } from '../../config/App';
 import {Controller} from "../Controller";
 import {Routes} from "../../config/Routes/routes";
 
-export class VersionController extends Controller{
+export class ApiDocsController extends Controller{
     private service :Routes;
 
-    constructor(Apollo :Apollo){
-        super(Apollo);
+    constructor(){
+        super();
         this.service = new Routes();
     }
 
