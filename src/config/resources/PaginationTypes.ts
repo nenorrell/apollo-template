@@ -1,5 +1,21 @@
 export type Pagination = {
-    next :string;
-    previous :string;
-    size :number;
+    data :any;
+    page: {
+        size :number;
+        prev :string;
+        current :number;
+        next :string;
+    }
+}
+
+export type PaginationQuery = {
+    limit :number;
+    skip :number;
+}
+
+export type PaginationConfig = {
+    page :number;
+    pageSize :number;
+    sortBy ?:string;
+    direction ?:string;
 }

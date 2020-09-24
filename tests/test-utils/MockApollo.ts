@@ -1,12 +1,23 @@
 import Sinon from "sinon";
-import { Apollo } from "../../src/config/App";
-import { Request } from "express";
 
-export const MockApollo :Apollo = {
-    req: <any>Sinon.mock(),
-    res:  <any>Sinon.mock(),
-    next: <any>Sinon.mock(),
-    app: <any>Sinon.mock(),
-    db: <any>Sinon.mock(),
-    currentRoute: <any>Sinon.mock(),
+import { buildApolloObj } from "../../src/config/Apollo";
+
+type MockedApollo = {
+    req ?:any,
+    res ?:any,
+    next ?:any,
+    db ?:any,
+    app ?:any,
+    currentRoute ?:any
+}
+
+export const MockApollo = (mocked ?:MockedApollo) :void=>{
+    buildApolloObj(
+        (mocked||{}).req || <any>Sinon.mock(),
+        (mocked||{}).res || <any>Sinon.mock(),
+        (mocked||{}).next || <any>Sinon.mock(),
+        (mocked||{}).db || <any>Sinon.mock(),
+        (mocked||{}).app || <any>Sinon.mock(),
+        (mocked||{}).currentRoute || <any>Sinon.mock()
+    );
 }

@@ -1,7 +1,7 @@
 import {expect} from "chai";
 import { Routes } from "../../src/config/Routes/routes";
 import { Route } from "../../src/config/Routes/resources/Route";
-import { RouteParamType, ParamDataTypes } from "../../src/config/Routes/resources/RouteParamType";
+import { RouteParam, ParamDataTypes } from "../../src/config/Routes/resources/RouteParam";
 
 let routes :Routes;
 describe('Routes', ()=> {
@@ -17,51 +17,51 @@ describe('Routes', ()=> {
             .setDescription("This endpoint is an example of what a more complex route might look like")
             .setCustomControllerPath("examples/examples.controller.ts")
             .setAction("index")
-            .setPathParam([
-                new RouteParamType()
+            .setPathParams([
+                new RouteParam()
                 .setName("someParam")
                 .setDescription("Some path param")
                 .setType(ParamDataTypes.number)
                 .setRequired(true)
             ])
             .setQueryParams([
-                new RouteParamType()
+                new RouteParam()
                 .setName("test")
                 .setRequired(true)
                 .setType(ParamDataTypes.string)
             ])
             .setBodySchema([
-                new RouteParamType()
+                new RouteParam()
                 .setName("group")
                 .setDescription("Group object")
                 .setRequired(true)
                 .setType(ParamDataTypes.object)
                 .setChildren([
-                    new RouteParamType()
+                    new RouteParam()
                     .setName("name")
                     .setDescription("The Name of the group")
                     .setRequired(true)
                     .setType(ParamDataTypes.string),
             
-                    new RouteParamType()
+                    new RouteParam()
                     .setName("Level")
                     .setDescription("The level of the group")
                     .setRequired(true)
                     .setType(ParamDataTypes.string),
             
-                    new RouteParamType()
+                    new RouteParam()
                     .setName("members")
                     .setDescription("The level of the group")
                     .setRequired(true)
                     .setType(ParamDataTypes.array)
                     .setChildren([
-                        new RouteParamType()
+                        new RouteParam()
                         .setName("name")
                         .setDescription("The name of the group user")
                         .setRequired(true)
                         .setType(ParamDataTypes.string),
             
-                        new RouteParamType()
+                        new RouteParam()
                         .setName("level")
                         .setDescription("The level of the group user")
                         .setRequired(true)

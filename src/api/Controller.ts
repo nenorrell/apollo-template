@@ -16,15 +16,7 @@ export class Controller{
     protected db ?:DB = Apollo.db;
 
     constructor(){
-        try{
-            this.responses = new Responses(this.res);
-            this.validatePathParams();
-            this.validateQueryParams();
-            this.validateReqBody();
-        }
-        catch(e){
-            throw e;
-        }
+        this.responses = new Responses(this.res);
     }
 
     public async checkPolicies(){
@@ -33,6 +25,17 @@ export class Controller{
             await asyncForEach(this.route.policies, async policyName => {
                 await policies.runPolicy(readPolicy(policyName))
             });
+        }
+    }
+
+    public runValidations() :void{
+        try{
+            this.validatePathParams();
+            this.validateQueryParams();
+            this.validateReqBody();
+        }
+        catch(e){
+            throw e;
         }
     }
 
@@ -52,22 +55,32 @@ export class Controller{
     }
 
     private validateQueryParams() :void{
-        if(this.route.queryParams){
-            this.route.queryParams.forEach((param :RouteParam)=>{
-                let queryParam = this.req.query[param.name];
-                this.validateRequiredParam(param, queryParam);
-                this.validateParamType(param, queryParam);
-                this.req.query[param.name] = this.convertType(param.type, queryParam);
-            });
+        try{
+            if(this.route.queryParams){
+                this.route.queryParams.forEach((param :RouteParam)=>{
+                    let queryParam = this.req.query[param.name];
+                    this.validateRequiredParam(param, queryParam);
+                    this.validateParamType(param, queryParam);
+                    this.req.query[param.name] = this.convertType(param.type, queryParam);
+                });
+            }
+        }
+        catch(e){
+            throw e;
         }
     }
 
     private validateReqBody() :void{
-        if(this.route.bodySchema){
-            if(!this.req.body){
-                throw formatError(400, "Payload is expected");
+        try{
+            if(this.route.bodySchema){
+                if(!this.req.body){
+                    throw formatError(400, "Payload is expected");
+                }
+                this.validateReqBodyParams(this.route.bodySchema, null, this.req.body)
             }
-            this.validateReqBodyParams(this.route.bodySchema, null, this.req.body)
+        }
+        catch(e){
+            throw e;
         }
     }
 

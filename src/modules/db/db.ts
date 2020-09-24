@@ -112,11 +112,24 @@ export class DB{
         let whereFields = await this.buildWhere(where);
         let sql = `SELECT ${selectFields} FROM ${table} ${whereFields}`;
         if(options){
-            if(options.limit){
-                sql += `LIMIT ${options.limit}`;
+            if(options.orderBy){
+                sql += ` ORDER BY ${camelCaseToUnderscore(options.orderBy)}`;
             }
-            if(options.offset){
-                sql += `OFFSET ${options.offset}`;
+            if(options.direction){
+                switch(options.direction.toUpperCase()){
+                    case "ASC":
+                        sql += ` ASC`;
+                    break;
+                    case "DESC":
+                        sql += ` DESC`;
+                    break;
+                }
+            }
+            if(options.limit){
+                sql += ` LIMIT ${escape(options.limit)}`;
+            }
+            if(options.skip){
+                sql += ` OFFSET ${escape(options.skip)}`;
             }
         }
         return sql;

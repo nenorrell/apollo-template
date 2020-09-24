@@ -1,6 +1,6 @@
 import {expect} from "chai";
 import { Route } from "../../../src/config/Routes/resources/Route";
-import { RouteParamType, ParamDataTypes } from "../../../src/config/Routes/resources/RouteParamType";
+import { RouteParam, ParamDataTypes } from "../../../src/config/Routes/resources/RouteParam";
 
 
 describe('Routes', ()=> {
@@ -12,51 +12,51 @@ describe('Routes', ()=> {
         .setDescription("This endpoint is an example of what a more complex route might look like")
         .setCustomControllerPath("examples/examples.controller.ts")
         .setAction("index")
-        .setPathParam([
-            new RouteParamType()
+        .setPathParams([
+            new RouteParam()
             .setName("someParam")
             .setDescription("Some path param")
             .setType(ParamDataTypes.number)
             .setRequired(true)
         ])
         .setQueryParams([
-            new RouteParamType()
+            new RouteParam()
             .setName("test")
             .setRequired(true)
             .setType(ParamDataTypes.string)
         ])
         .setBodySchema([
-            new RouteParamType()
+            new RouteParam()
             .setName("group")
             .setDescription("Group object")
             .setRequired(true)
             .setType(ParamDataTypes.object)
             .setChildren([
-                new RouteParamType()
+                new RouteParam()
                 .setName("name")
                 .setDescription("The Name of the group")
                 .setRequired(true)
                 .setType(ParamDataTypes.string),
         
-                new RouteParamType()
+                new RouteParam()
                 .setName("Level")
                 .setDescription("The level of the group")
                 .setRequired(true)
                 .setType(ParamDataTypes.string),
         
-                new RouteParamType()
+                new RouteParam()
                 .setName("members")
                 .setDescription("The level of the group")
                 .setRequired(true)
                 .setType(ParamDataTypes.array)
                 .setChildren([
-                    new RouteParamType()
+                    new RouteParam()
                     .setName("name")
                     .setDescription("The name of the group user")
                     .setRequired(true)
                     .setType(ParamDataTypes.string),
         
-                    new RouteParamType()
+                    new RouteParam()
                     .setName("level")
                     .setDescription("The level of the group user")
                     .setRequired(true)
@@ -69,21 +69,21 @@ describe('Routes', ()=> {
     describe("Body Schema", ()=> {
         it('Should build body schema properly', (done)=>{
             expect(route.bodySchema).to.be.an("array");
-            expect(route.bodySchema[0] instanceof RouteParamType).to.eq(true);
+            expect(route.bodySchema[0] instanceof RouteParam).to.eq(true);
 
             expect(route.bodySchema[0].children).to.be.an("array");
             expect(route.bodySchema[0].children.length).to.be.eq(3);
-            expect(route.bodySchema[0].children[0] instanceof RouteParamType).to.eq(true);
+            expect(route.bodySchema[0].children[0] instanceof RouteParam).to.eq(true);
 
             expect(route.bodySchema[0].children[2].children).to.be.an("array");
             expect(route.bodySchema[0].children[2].children.length).to.be.eq(2);
-            expect(route.bodySchema[0].children[2].children[0] instanceof RouteParamType).to.eq(true);
+            expect(route.bodySchema[0].children[2].children[0] instanceof RouteParam).to.eq(true);
             done();
         });
 
         it("Should format body schema properly", (done)=>{
-            expect(route.formattedBodySchema).to.be.an("object");
-            expect(route.formattedBodySchema).to.deep.eq({
+            expect(route.getFormattedBodySchema()).to.be.an("object");
+            expect(route.getFormattedBodySchema()).to.deep.eq({
                 "group": {
                     "name": {
                         "name": "name",

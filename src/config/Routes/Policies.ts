@@ -1,4 +1,4 @@
-import { formatError } from "../../modules/utility";
+import { formatError, getEnumValue } from "../../modules/utility";
 import { validateToken, readToken } from "../../modules/Auth/Auth";
 import { Apollo } from "../Apollo";
 
@@ -6,7 +6,7 @@ export enum PolicyOptions{
 }
 
 export const readPolicy = (policy :PolicyOptions) :string=>{
-    return PolicyOptions[policy];
+    return getEnumValue(PolicyOptions, policy);
 }
 
 export class Policies{

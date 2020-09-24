@@ -1,5 +1,6 @@
 import { RouteParam, ParamDataTypes } from "./RouteParam";
 import { readPolicy, PolicyOptions } from "../Policies";
+import { RouteTagOptions } from "./RouteTagOptions";
 
 export class Route {
     public path :string;
@@ -9,6 +10,7 @@ export class Route {
     public action :PropertyKey;
     public policies :Array<PolicyOptions>;
     public description :string;
+    public tag :RouteTagOptions;
     public pathParams :Array<RouteParam>;
     public queryParams :Array<RouteParam>;
     public bodySchema :Array<RouteParam>;
@@ -56,6 +58,11 @@ export class Route {
 
     public setDescription(description :string) :Route{
         this.description = description;
+        return this;
+    }
+
+    public setTag(tag :RouteTagOptions) :Route{
+        this.tag = tag;
         return this;
     }
 

@@ -1,4 +1,5 @@
 import {Response} from 'express';
+import { Pagination } from './resources/PaginationTypes';
 
 export class Responses{
     private res :Response;
@@ -13,18 +14,22 @@ export class Responses{
     public responseObject(code :number, data :any) :void{
         this.res.status(code).json({
             response: data,
-            code: code
+            code
         });
     }
 
-    // public paginatedResponse(code :number, data:Array<any>, paging) :void{
-
-    // }
+    public responsePaginated(code :number, paginatedData :Pagination) :void{
+        this.res.status(code).json({
+            response: paginatedData.data,
+            page: paginatedData.page,
+            code
+        });
+    }
 
     public responseArray(code :number, data :Array<any>) :void{
         this.res.status(code).json({
             response: data,
-            code: code
+            code
         });
     }
 

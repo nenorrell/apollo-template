@@ -13,6 +13,7 @@ import bodyParser from 'body-parser';
 import { DB } from '../modules/db/db';
 import { Controller } from '../api/Controller';
 import { buildApolloObj } from './Apollo';
+import cors from 'cors';
 
 export class App{
     public app :express.Application;
@@ -23,6 +24,7 @@ export class App{
         info("Apollo Fueling up...");
         this.app = express();
         this.db = this.setupDb();
+        this.enableCors();
         this.setupBodyParsers();
         this.setupReqLogger();
         this.bindRoutes();
@@ -54,6 +56,10 @@ export class App{
             });
             next();
         });
+    }
+
+    private enableCors() :void{
+        this.app.use(cors());
     }
 
     private setupBodyParsers() :void{
@@ -90,7 +96,8 @@ export class App{
                             let controllerClassName = Object.keys(controller)[0];
                             buildApolloObj(req, res, next, this.db, this.app, route);
                             controller = new controller[controllerClassName]();                            
-                            await controller.checkPolicies()
+                            controller.runValidations();
+                            await controller.checkPolicies();
                             controller[route.action](req, res, next);
                         }
                         catch(e){

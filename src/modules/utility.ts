@@ -4,6 +4,10 @@ export const cleanObject = (obj :any) :void =>{
     Object.keys(obj).forEach((key) => (obj[key] == null) && delete obj[key]);
 }
 
+export const getEnumValue = (enumType :any, value:any)=>{
+    return enumType[value];
+}
+
 export const formatError = (status :number, details :any) :ErrorInterface => {
     return {
         status,

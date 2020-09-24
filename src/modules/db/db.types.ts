@@ -15,5 +15,7 @@ export type Field = {
 
 export type QueryOptions = {
     limit ?:number;
-    offset ?:number;
+    skip ?:number;
+    orderBy ?:string;
+    direction ?:string;
 }

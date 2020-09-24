@@ -1,5 +1,5 @@
 import {expect} from "chai";
-import { DB } from "../../../src/modules/db/db";
+import { DB } from "../../src/modules/db/db";
 let db :DB;
 
 describe('DB', ()=> {
