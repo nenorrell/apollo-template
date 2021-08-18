@@ -1,10 +1,7 @@
-import {parse} from "url";
-import { DB } from '../modules/db/db';
 import { Apollo } from '../config/Apollo';
 import {Pagination, PaginationQuery, PaginationConfig} from '../config/resources/PaginationTypes';
 import { getAppUrl, formatError } from '../modules/utility';
-import {Request, Response, NextFunction, request, query} from 'express';
-import { QueryOptions } from '../modules/db/db.types';
+import {Request, Response, NextFunction} from 'express';
 import { Route } from '../config/Routes/resources/Route';
 
 export class Service{
@@ -12,7 +9,6 @@ export class Service{
     protected res :Response = Apollo.res;
     protected next :NextFunction = Apollo.next;
     protected currentRoute ?:Route = Apollo.currentRoute;
-    protected db ?:DB = Apollo.db;
     protected paging :PaginationConfig = {
         page: 1,
         pageSize: 25
@@ -35,29 +31,6 @@ export class Service{
             }
             else{
                 throw "Pagination params not configured for this route";
-            }
-        }
-        catch(e){
-            throw e;
-        }
-    }
-
-    protected getSortByParam() :QueryOptions{
-        try{
-            let hasParams = this.currentRoute.hasQueryParam("sortBy") || this.currentRoute.hasQueryParam("direction");
-            if(hasParams){
-                let sortBy = <any>this.req.query['sortBy'];
-                let direction = <any>this.req.query['direction'];
-                if(sortBy){
-                    return {
-                        orderBy: sortBy || null,
-                        direction: direction || null
-                    }
-                }
-                return {};
-            }
-            else{
-                throw "Sort by is not configured for this route";
             }
         }
         catch(e){

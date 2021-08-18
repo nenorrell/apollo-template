@@ -4,7 +4,6 @@ import { Route } from '../config/Routes/resources/Route';
 import { RouteParam, ParamDataTypes} from '../config/Routes/resources/RouteParam';
 import { formatError, asyncForEach } from '../modules/utility';
 import { Policies, readPolicy } from '../config/Routes/resources/Policies';
-import { DB } from '../modules/db/db';
 import { Apollo } from '../config/Apollo';
 
 export class Controller{
@@ -14,7 +13,6 @@ export class Controller{
     protected res :Response = Apollo.res;
     protected next :NextFunction = Apollo.next;
     protected route :Route = Apollo.currentRoute;
-    protected db ?:DB = Apollo.db;
 
     constructor(){
         this.responses = new Responses(this.res);

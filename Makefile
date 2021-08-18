@@ -39,24 +39,13 @@ unit_test:
 	--require @babel/polyfill \
 	$(UNIT_TEST) -R spec --color --verbose
 
-integration-test: test-db-down test-network-up test-db-up integration-test-run test-db-down
+integration-test: test-network-up integration-test-run
 
 integration-test-run:
-	docker run -i --rm -v `pwd`:/usr/src/app -w /usr/src/app \
-	--network=apollo-api_test \
-	--entrypoint="./bin/wait-for-it.sh" \
-	node:${NODE} test-db:3336 \
-	--timeout=60 -- echo "Test DB available"
-	
 	docker run -i --rm -p "9198:1337" \
 	--network=apollo-api_test \
 	-e NODE_ENV=test \
 	-e RUN_TESTS_WITH_LOGS=${RUN_TESTS_WITH_LOGS} \
-	-e DB="test-db" \
-	-e DB_PORT="3336" \
-	-e DB_HOST=test-db \
-	-e DB_USER="root" \
-	-e DB_PASSWORD="password" \
 	-e ENV="local" \
 	-e JWT_PRIVATE="Test-private-key" \
 	-v `pwd`:/usr/src/app -w /usr/src/app node:${NODE} \
@@ -66,8 +55,6 @@ integration-test-run:
 	--require ./tests/testHelper.js \
 	--require @babel/polyfill \
 	$(INTEGRATION_TEST) -R spec --color --verbose --exit
-
-	docker-compose -f docker-compose.test.yml down
 
 compile:
 	docker run -i --rm --name compile-apollo-api -e NODE_ENV=production -u "node" -v `pwd`:/usr/src/app -w /usr/src/app node:${NODE} npm run webpack-prod
@@ -90,12 +77,6 @@ tag: install version build_image
 
 test-network-up:
 	docker network create apollo-api_test || true
-
-test-db-down:
-	docker-compose -f docker-compose.test.yml down
-
-test-db-up:
-	docker-compose -f docker-compose.test.yml up -d
 
 test-network-down:
 	docker network rm apollo-api_test
