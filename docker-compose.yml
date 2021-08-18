@@ -1,15 +1,13 @@
-version: '2'
+version: '2.3'
 
 services:
 
   express:
-    build: .
-    image: "apollo/api"
+    image: node:14
     user: "node"
     working_dir: /usr/src/app
     environment:
       NODE_ENV: "development"
-      ENV: "local"
     
     volumes:
       - ./:/usr/src/app
@@ -23,4 +21,4 @@ services:
 networks:
   default:
     external:
-      name: apollo-api
+      name: aha_hockey

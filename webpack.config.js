@@ -2,7 +2,6 @@ const path = require('path');
 const WebpackShellPlugin = require('webpack-shell-plugin');
 const nodeEnv = process.env.NODE_ENV || 'development';
 const PATHS = {
-  bundlePath:  `./app.ts`,
   build: '/build',
   bundlePath:  path.resolve(__dirname, `./app.ts`)
 }
@@ -29,9 +28,15 @@ module.exports = {
     stats: {
         warningsFilter: w => w !== 'CriticalDependenciesWarning',
     },
+    node:{
+        __dirname: nodeEnv === "production" ? false : true,
+    },
     entry: PATHS.bundlePath,
     mode: nodeEnv === "production" ? nodeEnv : "development",
     target: 'node',
+    optimization: {
+        minimize: false
+    },    
     output: {
         path: path.resolve(__dirname, 'build'),
         filename: 'build.js'

@@ -56,6 +56,9 @@ integration-test-run:
 	--require @babel/polyfill \
 	$(INTEGRATION_TEST) -R spec --color --verbose --exit
 
+package:
+	/bin/sh ./bin/package.sh
+
 compile:
 	docker run -i --rm --name compile-apollo-api -e NODE_ENV=production -u "node" -v `pwd`:/usr/src/app -w /usr/src/app node:${NODE} npm run webpack-prod
 
@@ -69,7 +72,7 @@ push:
 push-hotifix:
 	docker push $(IMAGE):$(GIT_HASH)
 
-build_image: compile
+build_image: compile package
 	docker build --no-cache -t $(IMAGE):$(GIT_HASH) .
 
 tag: install version build_image
