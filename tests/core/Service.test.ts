@@ -2,7 +2,7 @@ import {expect} from "chai";
 import { MockApollo } from "../test-utils/MockApollo";
 import { Service } from "../../src/api/Service";
 import * as utility from "../../src/modules/utility";
-import Sinon from "sinon";
+import Sinon, { mock } from "sinon";
 let service :Service;
 
 describe('Service', ()=> {
@@ -14,6 +14,10 @@ describe('Service', ()=> {
                         page: 1,
                         pageSize: 25
                     }
+                },
+                currentRoute: {
+                    queryParamKeys: ["page","pageSize"],
+                    hasQueryParam: ()=>{return true}
                 }
             });
             service = new Service();
@@ -31,7 +35,11 @@ describe('Service', ()=> {
                     query: {
                         page: 3,
                         pageSize: 25
-                    }
+                    },
+                },
+                currentRoute: {
+                    queryParamKeys: ["page","pageSize"],
+                    hasQueryParam: ()=>{return true}
                 }
             });
             service = new Service();
@@ -50,6 +58,10 @@ describe('Service', ()=> {
                         page: 3,
                         pageSize: 150
                     }
+                },
+                currentRoute: {
+                    queryParamKeys: ["page","pageSize"],
+                    hasQueryParam: ()=>{return true}
                 }
             });
             service = new Service();
@@ -83,6 +95,10 @@ describe('Service', ()=> {
                         pageSize: 1
                     },
                     path: "/some/path"
+                },
+                currentRoute: {
+                    queryParamKeys: ["page","pageSize"],
+                    hasQueryParam: ()=>{return true}
                 }
             });
             service = new Service();
@@ -131,11 +147,15 @@ describe('Service', ()=> {
                         sortBy: "somethingHere"
                     },
                     path: "/some/path"
+                },
+                currentRoute: {
+                    queryParamKeys: ["page","pageSize","sortBy"],
+                    hasQueryParam: ()=>{return true}
                 }
             });
             service = new Service();
             service["getPaginationParams"]();
-            service["getSortByParam"](["somethingHere"]);
+            service["getSortByParam"]();
             
             let mockData = [
                 {
@@ -163,8 +183,8 @@ describe('Service', ()=> {
                 data: mockData,
                 page: {
                     current: 3,
-                    next: "https://someUrl.com/some/path?page=4&pageSize=1&sortBy=somethingHere",
-                    prev: "https://someUrl.com/some/path?page=2&pageSize=1&sortBy=somethingHere",
+                    next: "https://someUrl.com/some/path?sortBy=somethingHere&page=4&pageSize=1",
+                    prev: "https://someUrl.com/some/path?sortBy=somethingHere&page=2&pageSize=1",
                     size: 1
                 }
             });
@@ -181,11 +201,15 @@ describe('Service', ()=> {
                         sortBy: "somethingHere"
                     },
                     path: "/some/path"
+                },
+                currentRoute: {
+                    queryParamKeys: ["page","pageSize","sortBy", "direction"],
+                    hasQueryParam: ()=>{return true}
                 }
             });
             service = new Service();
             service["getPaginationParams"]();
-            service["getSortByParam"](["somethingHere"]);
+            service["getSortByParam"]();
             
             let mockData = [
                 {
@@ -213,8 +237,8 @@ describe('Service', ()=> {
                 data: mockData,
                 page: {
                     current: 3,
-                    next: "https://someUrl.com/some/path?page=4&pageSize=1&sortBy=somethingHere&direction=ASC",
-                    prev: "https://someUrl.com/some/path?page=2&pageSize=1&sortBy=somethingHere&direction=ASC",
+                    next: "https://someUrl.com/some/path?sortBy=somethingHere&direction=ASC&page=4&pageSize=1",
+                    prev: "https://someUrl.com/some/path?sortBy=somethingHere&direction=ASC&page=2&pageSize=1",
                     size: 1
                 }
             });

@@ -3,13 +3,14 @@ import { Responses } from '../config/Responses';
 import { Route } from '../config/Routes/resources/Route';
 import { RouteParam, ParamDataTypes} from '../config/Routes/resources/RouteParam';
 import { formatError, asyncForEach } from '../modules/utility';
-import { Policies, readPolicy } from '../config/Routes/Policies';
+import { Policies, readPolicy } from '../config/Routes/resources/Policies';
 import { DB } from '../modules/db/db';
 import { Apollo } from '../config/Apollo';
 
 export class Controller{
     protected responses :Responses;
-    protected req :Request = Apollo.req; 
+    protected req :Request = Apollo.req;
+    protected currentRoute :Route = Apollo.currentRoute;
     protected res :Response = Apollo.res;
     protected next :NextFunction = Apollo.next;
     protected route :Route = Apollo.currentRoute;
@@ -60,8 +61,11 @@ export class Controller{
                 this.route.queryParams.forEach((param :RouteParam)=>{
                     let queryParam = this.req.query[param.name];
                     this.validateRequiredParam(param, queryParam);
-                    this.validateParamType(param, queryParam);
-                    this.req.query[param.name] = this.convertType(param.type, queryParam);
+                    if(typeof queryParam != "undefined"){
+                        this.validateParamType(param, queryParam);
+                        this.req.query[param.name] = this.convertType(param.type, queryParam);
+                        this.validateEnumParam(param, queryParam);
+                    }
                 });
             }
         }
@@ -117,14 +121,29 @@ export class Controller{
 
     private processBodyReqRow(schemaLevel :RouteParam, row ?:any){
         this.validateRequiredParam(schemaLevel, row[schemaLevel.name]);
-        this.validateParamType(schemaLevel, row[schemaLevel.name]);
-        row[schemaLevel.name] = this.convertType(schemaLevel.type, row[schemaLevel.name]);
+        if(typeof row[schemaLevel.name] != "undefined"){
+            this.validateParamType(schemaLevel, row[schemaLevel.name]);
+            row[schemaLevel.name] = this.convertType(schemaLevel.type, row[schemaLevel.name]);
+        }
     }
 
     private validateRequiredParam(param :RouteParam, requestParam :any) :void{
         if(param.required && !requestParam){
             let err = `${param.name} was not sent and is required`;
             throw formatError(400, err);
+        }
+    }
+
+    private validateEnumParam(param :RouteParam, requestParam :any) :void{
+        if(requestParam && param.type === ParamDataTypes.enum){
+            let filtered = param.enumValues.filter((val)=>
+                val === requestParam
+            );
+            
+            if(filtered.length === 0){
+                let err = `Invalid enum value for ${param.name}: ${requestParam}`;
+                throw formatError(400, err);
+            }
         }
     }
 
@@ -150,8 +169,13 @@ export class Controller{
         let isValid :Boolean = true;
         switch(type){
             case ParamDataTypes.boolean:
-                let value = typeof paramValue == "string" ? this.parseBool(paramValue) : paramValue;
-                if(typeof value !== "boolean"){
+                try{
+                    let value = typeof paramValue == "string" ? this.parseBool(paramValue) : paramValue;
+                    if(typeof value !== "boolean"){
+                        isValid = false;
+                    }
+                }
+                catch(e){
                     isValid = false;
                 }
                 break;
@@ -181,7 +205,7 @@ export class Controller{
                 break;
 
             default:
-                isValid = false;
+                isValid = true;
         }
 
         return isValid;
@@ -193,14 +217,14 @@ export class Controller{
                 return this.parseBool(paramValue);
             
             case ParamDataTypes.number:
-                return (+paramValue)
+                return (+paramValue);
 
             default:
                 return paramValue;
         }
     }
 
-    private parseBool(stringIn :string) :Boolean{
+    private parseBool(stringIn :string) :Boolean{        
         try{
             if(stringIn === "false"){
                 return false;

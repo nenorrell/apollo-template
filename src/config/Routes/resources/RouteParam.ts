@@ -3,14 +3,19 @@ export enum ParamDataTypes{
     'number',
     'string',
     'object',
-    'array'
+    'array',
+    'enum'
 }
 
+/**
+ * @class Defines a route param for Apollo to pickup.
+ * Could be a param in the path, body, or a query param */
 export class RouteParam{
     public name :string;
     public children :Array<RouteParam>;
     public required :Boolean;
     public type :ParamDataTypes;
+    public enumValues :Array<string | number | boolean>;
     public description :string;
     private typeDisplayValue :string;
 
@@ -29,6 +34,10 @@ export class RouteParam{
     public setType(type :ParamDataTypes) :RouteParam{
         this.type = type;
         this.typeDisplayValue = ParamDataTypes[type];
+        return this;
+    }
+    public setEnumValues(values :Array<string | number | boolean>) :RouteParam{
+        this.enumValues = values;
         return this;
     }
     public setDescription(description :string) :RouteParam{

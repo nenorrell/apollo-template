@@ -43,13 +43,13 @@ integration-test: test-db-down test-network-up test-db-up integration-test-run t
 
 integration-test-run:
 	docker run -i --rm -v `pwd`:/usr/src/app -w /usr/src/app \
-	--network=api_test \
+	--network=apollo-api_test \
 	--entrypoint="./bin/wait-for-it.sh" \
 	node:${NODE} test-db:3336 \
 	--timeout=60 -- echo "Test DB available"
 	
 	docker run -i --rm -p "9198:1337" \
-	--network=api_test \
+	--network=apollo-api_test \
 	-e NODE_ENV=test \
 	-e RUN_TESTS_WITH_LOGS=${RUN_TESTS_WITH_LOGS} \
 	-e DB="test-db" \
