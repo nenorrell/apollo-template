@@ -2,7 +2,7 @@ import {expect} from "chai";
 import { MockApollo } from "../test-utils/MockApollo";
 import { Service } from "../../src/api/Service";
 import * as utility from "../../src/modules/utility";
-import Sinon from "sinon";
+import Sinon, { mock } from "sinon";
 let service :Service;
 
 describe('Service', ()=> {
@@ -14,6 +14,10 @@ describe('Service', ()=> {
                         page: 1,
                         pageSize: 25
                     }
+                },
+                currentRoute: {
+                    queryParamKeys: ["page","pageSize"],
+                    hasQueryParam: ()=>{return true}
                 }
             });
             service = new Service();
@@ -31,7 +35,11 @@ describe('Service', ()=> {
                     query: {
                         page: 3,
                         pageSize: 25
-                    }
+                    },
+                },
+                currentRoute: {
+                    queryParamKeys: ["page","pageSize"],
+                    hasQueryParam: ()=>{return true}
                 }
             });
             service = new Service();
@@ -50,6 +58,10 @@ describe('Service', ()=> {
                         page: 3,
                         pageSize: 150
                     }
+                },
+                currentRoute: {
+                    queryParamKeys: ["page","pageSize"],
+                    hasQueryParam: ()=>{return true}
                 }
             });
             service = new Service();
@@ -83,6 +95,10 @@ describe('Service', ()=> {
                         pageSize: 1
                     },
                     path: "/some/path"
+                },
+                currentRoute: {
+                    queryParamKeys: ["page","pageSize"],
+                    hasQueryParam: ()=>{return true}
                 }
             });
             service = new Service();
@@ -116,105 +132,6 @@ describe('Service', ()=> {
                     current: 3,
                     next: "https://someUrl.com/some/path?page=4&pageSize=1",
                     prev: "https://someUrl.com/some/path?page=2&pageSize=1",
-                    size: 1
-                }
-            });
-            done();
-        });
-
-        it("Should return pagination object properly with sortBy", (done)=>{
-            MockApollo({
-                req: {
-                    query: {
-                        page: 3,
-                        pageSize: 1,
-                        sortBy: "somethingHere"
-                    },
-                    path: "/some/path"
-                }
-            });
-            service = new Service();
-            service["getPaginationParams"]();
-            service["getSortByParam"](["somethingHere"]);
-            
-            let mockData = [
-                {
-                    firstName: "Bruce",
-                    lastName: "Wayne"
-                },
-                {
-                    firstName: "Clark",
-                    lastName: "Kent"
-                },
-                {
-                    firstName: "Tony",
-                    lastName: "Stark"
-                },
-                {
-                    firstName: "Steve",
-                    lastName: "Rodgers"
-                },
-                {
-                    firstName: "Miles",
-                    lastName: "Morales"
-                }
-            ]
-            expect(service.paginate(mockData)).to.deep.eq({
-                data: mockData,
-                page: {
-                    current: 3,
-                    next: "https://someUrl.com/some/path?page=4&pageSize=1&sortBy=somethingHere",
-                    prev: "https://someUrl.com/some/path?page=2&pageSize=1&sortBy=somethingHere",
-                    size: 1
-                }
-            });
-            done();
-        });
-
-        it("Should return pagination object properly with direction", (done)=>{
-            MockApollo({
-                req: {
-                    query: {
-                        page: 3,
-                        pageSize: 1,
-                        direction: "ASC",
-                        sortBy: "somethingHere"
-                    },
-                    path: "/some/path"
-                }
-            });
-            service = new Service();
-            service["getPaginationParams"]();
-            service["getSortByParam"](["somethingHere"]);
-            
-            let mockData = [
-                {
-                    firstName: "Bruce",
-                    lastName: "Wayne"
-                },
-                {
-                    firstName: "Clark",
-                    lastName: "Kent"
-                },
-                {
-                    firstName: "Tony",
-                    lastName: "Stark"
-                },
-                {
-                    firstName: "Steve",
-                    lastName: "Rodgers"
-                },
-                {
-                    firstName: "Miles",
-                    lastName: "Morales"
-                }
-            ]
-            expect(service.paginate(mockData)).to.deep.eq({
-                data: mockData,
-                page: {
-                    current: 3,
-                    next: "https://someUrl.com/some/path?page=4&pageSize=1&sortBy=somethingHere&direction=ASC",
-                    prev: "https://someUrl.com/some/path?page=2&pageSize=1&sortBy=somethingHere&direction=ASC",
                     size: 1
                 }
             });

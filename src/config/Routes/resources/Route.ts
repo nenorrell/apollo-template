@@ -1,7 +1,10 @@
 import { RouteParam, ParamDataTypes } from "./RouteParam";
-import { readPolicy, PolicyOptions } from "../Policies";
+import { readPolicy, PolicyOptions } from "./Policies";
 import { RouteTagOptions } from "./RouteTagOptions";
+import { HttpMethod } from "../../resources/Common";
+import { ApolloResponseType } from "../../resources/IResponses";
 
+/** @class Configure a route for the application */
 export class Route {
     public path :string;
     public method :PropertyKey;
@@ -19,8 +22,11 @@ export class Route {
     private formattedBodySchema :any;
     private formattedQueryParams :any;
     public excludedEnvironments :Array<string>;
+    public hideFromDocs :boolean;
+    public queryParamKeys :Array<string> = [];
+    public exampleResponse :ApolloResponseType;
 
-    public setMethod(method :PropertyKey) :Route{
+    public setMethod(method :HttpMethod) :Route{
         this.method = method.toString().toLocaleLowerCase();
         return this;
     }
@@ -75,6 +81,9 @@ export class Route {
     public setQueryParams(queryParams :Array<RouteParam>) :Route{
         this.queryParams = queryParams;
         this.formattedQueryParams = this.formatParams(queryParams);
+        this.queryParams.forEach((param)=>{
+            this.queryParamKeys.push(param.name);
+        });
         return this;
     }
 
@@ -86,6 +95,16 @@ export class Route {
 
     public setExcludedEnvironments(environments :Array<string>) :Route{
         this.excludedEnvironments = environments;
+        return this;
+    }
+
+    public setHideFromDocs(hideFromDocs :boolean) :Route{
+        this.hideFromDocs = hideFromDocs;
+        return this;
+    }
+
+    public setExampleResponse(exampleResponse :ApolloResponseType) :Route{
+        this.exampleResponse = exampleResponse;
         return this;
     }
 
@@ -103,6 +122,18 @@ export class Route {
 
     public getFormattedBodySchema() :any{
         return this.formattedBodySchema;
+    }
+
+    /** A shortcut for determining if a route
+     * has a specific query param configured for it
+     * 
+     * WILL NOT DETECT IF THE REQUEST HAS A QUERY PARAM
+     * PRESENT
+     * 
+     * @param key - Param key to search for
+     */
+    public hasQueryParam(key :string) :boolean{
+        return this.queryParamKeys.includes(key);
     }
 
     private formatParams(queryParams :Array<RouteParam>) :any{
@@ -136,11 +167,15 @@ export class Route {
     }
     
     private formatParam(item :RouteParam) :any{
-        return {
+        let obj = {
             name: item.name,
             description: item.description,
-            required: item.required,
+            required: item.required || false,
             type: item.getTypeDisplayValue()
         }
+        if(item.type === ParamDataTypes.enum){
+            obj['enumValues'] = item.enumValues;
+        }
+        return obj;
     }
 }

@@ -3,7 +3,6 @@ import { Apollo } from "../../src/config/Apollo";
 import { MockApollo } from "../test-utils/MockApollo";
 import {Controller} from "../../src/api/Controller";
 import { mockRouteWithPathParams, mockRouteWithQueryParams, mockRouteWithBodyParams } from "../test-utils/MockRoute";
-import { formatError } from "../../src/modules/utility";
 import { RouteParam, ParamDataTypes } from "../../src/config/Routes/resources/RouteParam";
 
 let controller :Controller;
@@ -23,7 +22,7 @@ describe('Controller', ()=> {
                 },
                 currentRoute: mockRouteWithPathParams([{
                     name: "userId",
-                    type: "number",
+                    type: ParamDataTypes.number,
                     isRequired: true
                 }])
             });
@@ -44,12 +43,12 @@ describe('Controller', ()=> {
                 currentRoute: mockRouteWithPathParams([
                     {
                         name: "userId",
-                        type: "number",
+                        type: ParamDataTypes.number,
                         isRequired: true
                     },
                     {
                         name: "otherParam",
-                        type: "string",
+                        type: ParamDataTypes.string,
                         isRequired: true
                     }
                 ])
@@ -70,7 +69,7 @@ describe('Controller', ()=> {
                 currentRoute: mockRouteWithPathParams([
                     {
                         name: "userId",
-                        type: "number",
+                        type: ParamDataTypes.number,
                         isRequired: true
                     }
                 ])
@@ -92,7 +91,7 @@ describe('Controller', ()=> {
                 currentRoute: mockRouteWithPathParams([
                     {
                         name: "someParam",
-                        type: "boolean",
+                        type: ParamDataTypes.boolean,
                         isRequired: true
                     }
                 ])
@@ -114,7 +113,7 @@ describe('Controller', ()=> {
                 currentRoute: mockRouteWithPathParams([
                     {
                         name: "userId",
-                        type: "number",
+                        type: ParamDataTypes.number,
                         isRequired: true
                     }
                 ])
@@ -146,7 +145,7 @@ describe('Controller', ()=> {
                 },
                 currentRoute: mockRouteWithQueryParams([{
                     name: "someParam",
-                    type: "string",
+                    type: ParamDataTypes.string,
                     isRequired: true
                 }])
             });
@@ -168,12 +167,12 @@ describe('Controller', ()=> {
                 currentRoute: mockRouteWithQueryParams([
                     {
                         name: "someParam",
-                        type: "string",
+                        type: ParamDataTypes.string,
                         isRequired: true
                     },
                     {
                         name: "someOtherParam",
-                        type: "number",
+                        type: ParamDataTypes.number,
                         isRequired: true
                     }
                 ])
@@ -195,12 +194,12 @@ describe('Controller', ()=> {
                 currentRoute: mockRouteWithQueryParams([
                     {
                         name: "someParam",
-                        type: "string",
+                        type: ParamDataTypes.string,
                         isRequired: true
                     },
                     {
                         name: "someOtherParam",
-                        type: "number",
+                        type: ParamDataTypes.number,
                         isRequired: false
                     }
                 ])
@@ -222,7 +221,7 @@ describe('Controller', ()=> {
                 currentRoute: mockRouteWithQueryParams([
                     {
                         name: "numberParam",
-                        type: "number",
+                        type: ParamDataTypes.number,
                         isRequired: true
                     }
                 ])
@@ -244,7 +243,7 @@ describe('Controller', ()=> {
                 currentRoute: mockRouteWithQueryParams([
                     {
                         name: "booleanParam",
-                        type: "boolean",
+                        type: ParamDataTypes.boolean,
                         isRequired: true
                     }
                 ])
@@ -266,12 +265,12 @@ describe('Controller', ()=> {
                 currentRoute: mockRouteWithQueryParams([
                     {
                         name: "someParam",
-                        type: "string",
+                        type: ParamDataTypes.string,
                         isRequired: true
                     },
                     {
                         name: "someOtherParam",
-                        type: "number",
+                        type: ParamDataTypes.number,
                         isRequired: true
                     }
                 ])
@@ -303,12 +302,75 @@ describe('Controller', ()=> {
                 currentRoute: mockRouteWithQueryParams([
                     {
                         name: "someParam",
-                        type: "string",
+                        type: ParamDataTypes.string,
                         isRequired: true
                     },
                     {
                         name: "someOtherParam",
-                        type: "number",
+                        type: ParamDataTypes.number,
+                        isRequired: true
+                    }
+                ])
+            });
+
+            controller = new Controller();
+            try{
+                expect(controller["validateQueryParams"].bind(controller)).to.throw();
+                controller["validateQueryParams"]();
+            }
+            catch(e){
+                expect(e).to.deep.eq({
+                    status: 400,
+                    details: 'Invalid param type for someOtherParam: Expected number but got string'
+                });
+            }
+            done();
+        });
+
+        it("Should not throw error if param value is in enum choices", (done)=>{
+            MockApollo({
+                req:{
+                    query: {
+                        enumParam: "enumValue"
+                    },
+                    path: "/some/route"
+                },
+                currentRoute: mockRouteWithQueryParams([
+                    {
+                        name: "enumParam",
+                        type: ParamDataTypes.enum,
+                        enumValues: ["enumValue"],
+                        isRequired: true
+                    }
+                ])
+            });
+
+            controller = new Controller();
+            try{
+                expect(controller["validateQueryParams"].bind(controller)).to.not.throw(); 
+            }
+            catch(e){
+                expect(e).to.deep.eq({
+                    status: 400,
+                    details: 'Invalid enum value for enumParam: enumValue'
+                });
+            }
+            done();
+        });
+
+        it("Should throw error if param value is not in enum", (done)=>{
+            MockApollo({
+                req:{
+                    query: {
+                        enumParam: "enumValue"
+                    },
+                    path: "/some/route"
+                },
+                currentRoute: mockRouteWithQueryParams([
+                    {
+                        name: "enumParam",
+                        type: ParamDataTypes.enum,
+                        enumValues: ["testVal"],
                         isRequired: true
                     }
                 ])
@@ -322,7 +384,7 @@ describe('Controller', ()=> {
             catch(e){
                 expect(e).to.deep.eq({
                     status: 400,
-                    details: 'Invalid param type for someOtherParam: Expected number but got string'
+                    details: 'Invalid enum value for enumParam: enumValue'
                 });
             }
             done();

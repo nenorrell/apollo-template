@@ -10,7 +10,6 @@ import { Responses } from './Responses';
 import { Rocket } from './Rocket';
 import { ErrorHandler } from './ErrorHandler';
 import bodyParser from 'body-parser';
-import { DB } from '../modules/db/db';
 import { Controller } from '../api/Controller';
 import { buildApolloObj } from './Apollo';
 import cors from 'cors';
@@ -18,12 +17,10 @@ import cors from 'cors';
 export class App{
     public app :express.Application;
     public port :number = 1337;
-    public db :DB;
 
     constructor(){
         info("Apollo Fueling up...");
         this.app = express();
-        this.db = this.setupDb();
         this.enableCors();
         this.setupBodyParsers();
         this.setupReqLogger();
@@ -31,27 +28,11 @@ export class App{
         this.setupErrorHandler();
     }
 
-    private setupDb() :DB{
-        const db = new DB();
-        db.createPool(
-            process.env.DB_HOST, 
-            process.env.DB_USER,
-            process.env.DB_PASSWORD,
-            process.env.DB,
-            process.env.DB_PORT
-        );
-        return db;
-    }
-    
     private setupReqLogger() :void{
         this.app.use((req, res, next)=>{
             info("Logging request", {req});
 
             onFinished(res, (err, res)=>{
-                const dbState = (this.db.connection||{}).state;
-                if( dbState === "connected" || dbState == "authenticated"){
-                    this.db.connection.release();
-                }
                 info("Logging response", {res});
             });
             next();
@@ -84,9 +65,7 @@ export class App{
                     debug(`Binding ${route.path}`);
                     this.app[route.method](route.path, async (req :Request, res :Response, next :NextFunction)=>{
                         try{
-                            let controller :Controller;
-                            await this.db.connectPool();
-    
+                            let controller :Controller;    
                             if(route.customControllerPath){
                                 controller = require(`../api/${route.customControllerPath}`);
                             }
@@ -94,7 +73,7 @@ export class App{
                                 controller = require(`../api/${route.controller}/${route.controller}.controller.ts`);
                             }
                             let controllerClassName = Object.keys(controller)[0];
-                            buildApolloObj(req, res, next, this.db, this.app, route);
+                            buildApolloObj(req, res, next, this.app, route);
                             controller = new controller[controllerClassName]();                            
                             controller.runValidations();
                             await controller.checkPolicies();

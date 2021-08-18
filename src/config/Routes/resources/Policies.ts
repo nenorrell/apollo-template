@@ -1,6 +1,5 @@
-import { formatError, getEnumValue } from "../../modules/utility";
-import { validateToken, readToken } from "../../modules/Auth/Auth";
-import { Apollo } from "../Apollo";
+import { formatError, getEnumValue } from "../../../modules/utility";
+import { Apollo } from "../../Apollo";
 
 export enum PolicyOptions{
 }
