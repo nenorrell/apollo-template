@@ -1,7 +1,6 @@
 import { Response } from "express";
-import { Responses } from "./Responses";
-import { ErrorInterface } from "./resources/ErrorInterface";
 import {error} from "../modules/logger";
+import {ErrorInterface, Responses} from "@apollo-api/core";
 
 export class ErrorHandler{
     private res :Response;

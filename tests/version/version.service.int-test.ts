@@ -1,4 +1,4 @@
-import request from "supertest";
+import * as request from "supertest";
 import {expect} from "chai";
 import {app} from "../testApp";
 

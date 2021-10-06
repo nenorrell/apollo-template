@@ -1,12 +1,24 @@
 {
+  "buildOptions": {
+    "verbose": true
+  },
   "compilerOptions": {
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
     "lib": [
       "ES2020"
     ],
-    "module": "ES2020",
+    "module": "CommonJS",
     "moduleResolution": "node",
-    "target": "ES2020"
-  }
+    "target": "ES2018",
+    "importHelpers": true,
+    "outDir": "dist"
+  },
+  "include": [
+    "src",
+    "migrations",
+    "./app.ts",
+    "tests"
+  ],
+  "exclude": ["node_modules"]
 }

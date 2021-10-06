@@ -1,5 +1,6 @@
 node_modules
-.nyc_output/*
+.nyc_output
 build/*
-dist/*
 BUILD-VERSION.json
+dist/*
+coverage-*

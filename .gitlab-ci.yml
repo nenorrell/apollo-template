@@ -1,0 +1,43 @@
+image: docker
+services:
+  - docker:dind
+
+stages:
+  - test
+  - push
+  
+run-tests:  
+  stage: test
+  except:
+    - schedules
+  before_script:
+    - apk add --no-cache curl
+    - apk add --no-cache make
+    - apk add --no-cache docker-compose
+  script:
+    - make test
+  only:
+    refs:
+      - merge_requests
+  
+  artifacts:
+    reports:
+      cobertura: [coverage-unit/cobertura-coverage.xml, coverage-integration/cobertura-coverage.xml]
+
+push:
+  resource_group: push
+  except:
+    - schedules
+  stage: push
+  when: on_success
+  before_script:
+    - apk add --no-cache curl
+  script:
+    - apk add --no-cache make
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+    - make tag IMAGE=$CI_REGISTRY/everyday-stonks/apollo-api GIT_HASH=$CI_COMMIT_SHORT_SHA
+    - make push IMAGE=$CI_REGISTRY/everyday-stonks/apollo-api GIT_HASH=$CI_COMMIT_SHORT_SHA
+      
+  only:
+    refs:
+      - master

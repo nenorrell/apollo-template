@@ -1,27 +1,29 @@
-import express, { Request, Response, NextFunction } from 'express';
-import fs from "fs";
-import path from "path";
-import https from "https";
-import {Routes} from './Routes/routes';
-import onFinished from "on-finished"
+import * as express from "express"; 
+import { Request, Response, NextFunction } from 'express';
+import * as fs from "fs";
+import * as path from "path";
+import * as https from "https";
+import * as onFinished from "on-finished"
 import {yellow, green} from "chalk";
 import {info, debug, error} from "../modules/logger";
-import { Responses } from './Responses';
-import { Rocket } from './Rocket';
 import { ErrorHandler } from './ErrorHandler';
-import bodyParser from 'body-parser';
-import { Controller } from '../api/Controller';
-import { buildApolloObj } from './Apollo';
-import cors from 'cors';
+import * as cors from 'cors';
+import { minervaConfig, ConnectionNames } from './MinervaConfig';
+import { ApolloVisualizerUI } from '@apollo-api/visualizer';
+import { buildApolloObj, Controller, Responses, Rocket, Routes, } from '@apollo-api/core';
+import { apolloConfig } from './Apollo/ApolloConfig';
+import { Minerva } from '@apollo-api/minerva';
 
 export class App{
     public app :express.Application;
     public port :number = 1337;
+    public db :Minerva<ConnectionNames> = new Minerva(minervaConfig);
 
     constructor(){
         info("Apollo Fueling up...");
         this.app = express();
         this.enableCors();
+        this.registerDocsUi();
         this.setupBodyParsers();
         this.setupReqLogger();
         this.bindRoutes();
@@ -43,9 +45,16 @@ export class App{
         this.app.use(cors());
     }
 
+    private registerDocsUi() :void{
+        debug("Setting up docs UI at /docs");
+        this.app.use('/docs', (req, res, next)=>{
+            ApolloVisualizerUI().then(tpl=> res.send(tpl))
+        });
+    }
+
     private setupBodyParsers() :void{
-        this.app.use(bodyParser.json());
-        this.app.use(bodyParser.urlencoded({extended: true}));
+        this.app.use(<any>express.json());
+        this.app.use(<any>express.urlencoded({extended: true}));
     }
 
     private setupErrorHandler() :void{
@@ -56,7 +65,7 @@ export class App{
 
     private bindRoutes() :void{
         debug("Binding Routes...")
-        new Routes().routesArray.forEach((route)=>{
+        new Routes(apolloConfig).routesArray.forEach((route)=>{
             try{
                 if(route.excludedEnvironments && route.excludedEnvironments.includes(process.env.ENV)){
                     info(yellow(`Excluding ${route.path} for this environment`));
@@ -73,9 +82,19 @@ export class App{
                                 controller = require(`../api/${route.controller}/${route.controller}.controller.ts`);
                             }
                             let controllerClassName = Object.keys(controller)[0];
-                            buildApolloObj(req, res, next, this.app, route);
+                            buildApolloObj({
+                                config: apolloConfig,
+                                req,
+                                res,
+                                next,
+                                app: this.app,
+                                currentRoute: route,
+                                custom: {
+                                    db: this.db
+                                }
+                            });
                             controller = new controller[controllerClassName]();                            
-                            controller.runValidations();
+                            await controller.runValidations();
                             await controller.checkPolicies();
                             controller[route.action](req, res, next);
                         }
@@ -112,7 +131,7 @@ export class App{
 
     private setupHttpsServer() :void{
         try{
-            let filePath = path.resolve(__dirname, `/ssl-config/certbot/letsencrypt/live/api.ahahockey.com`);
+            let filePath = path.resolve(__dirname, `/ssl-config/certbot/letsencrypt/live/${process.env.SSL_DOMAIN}`);
             let key = fs.readFileSync(`${filePath}/privkey.pem`);
             let cert = fs.readFileSync(`${filePath}/cert.pem`);
             this.rerouteHttpToHttps();  
@@ -122,7 +141,7 @@ export class App{
             }, this.app)
             .listen(443);
             
-            new Rocket().launch();
+            info(new Rocket().launch());
             info(green(`Apollo API has launched on port ${443}!`))
             
         }
@@ -134,7 +153,7 @@ export class App{
 
     private setupHttpServer() :void{
         this.app.listen(this.port, () => {
-            new Rocket().launch();
+            info(new Rocket().launch());
             info(green(`Apollo API has launched on port ${this.port}!`))
         });
     }

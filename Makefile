@@ -25,18 +25,18 @@ network:
 install:
 	docker run -i --rm --name install-apollo-api -u "node" -v `pwd`:/usr/src/app -w /usr/src/app node:${NODE} npm install ${PCKG}
 
-test: install version unit_test integration-test
+test: install version compile-test unit_test integration-test
+
+fast-test: version unit_test integration-test
 
 unit_test:
 	docker run -i --rm -p "9199:9200" \
 	-e JWT_PRIVATE="Test-private-key" \
 	-v `pwd`:/usr/src/app \
 	-w /usr/src/app node:${NODE} \
-	node_modules/.bin/nyc \
+	node_modules/.bin/nyc --reporter=cobertura --report-dir=./coverage-unit \
 	node_modules/.bin/mocha \
 	--require ts-node/register \
-	--require ./tests/testHelper.js \
-	--require @babel/polyfill \
 	$(UNIT_TEST) -R spec --color --verbose
 
 integration-test: test-network-up integration-test-run
@@ -49,18 +49,22 @@ integration-test-run:
 	-e ENV="local" \
 	-e JWT_PRIVATE="Test-private-key" \
 	-v `pwd`:/usr/src/app -w /usr/src/app node:${NODE} \
-	node_modules/.bin/nyc \
+	node_modules/.bin/nyc --reporter=cobertura --report-dir=./coverage-integration \
 	node_modules/.bin/mocha \
 	--require ts-node/register \
-	--require ./tests/testHelper.js \
-	--require @babel/polyfill \
 	$(INTEGRATION_TEST) -R spec --color --verbose --exit
 
 package:
 	/bin/sh ./bin/package.sh
 
 compile:
-	docker run -i --rm --name compile-apollo-api -e NODE_ENV=production -u "node" -v `pwd`:/usr/src/app -w /usr/src/app node:${NODE} npm run webpack-prod
+	docker run -it --rm --name compile-apollo-api-api -e NODE_ENV=production -u "node" -v `pwd`:/usr/src/app -w /usr/src/app node:${NODE} npm run build-ts
+
+build-compile:
+	docker run -i --rm --name compile-apollo-api-api -e NODE_ENV=production -u "node" -v `pwd`:/usr/src/app -w /usr/src/app node:${NODE} npm run build-ts
+
+compile-test:
+	docker run -i --rm --name compile-apollo-api-api -e NODE_ENV=production -u "node" -v `pwd`:/usr/src/app -w /usr/src/app node:${NODE} npm run test-compile
 
 version:
 	echo '{"version":"${GIT_HASH}"}' > ./src/api/version/BUILD-VERSION.json
@@ -72,7 +76,7 @@ push:
 push-hotifix:
 	docker push $(IMAGE):$(GIT_HASH)
 
-build_image: compile package
+build_image: build-compile package
 	docker build --no-cache -t $(IMAGE):$(GIT_HASH) .
 
 tag: install version build_image

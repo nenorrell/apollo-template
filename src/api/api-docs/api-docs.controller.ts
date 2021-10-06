@@ -1,15 +1,14 @@
-import {Controller} from "../Controller";
-import {Routes} from "../../config/Routes/routes";
+import { Controller, Routes } from "@apollo-api/core";
 
 export class ApiDocsController extends Controller{
     private service :Routes;
 
     constructor(){
         super();
-        this.service = new Routes();
+        this.service = new Routes(this.config);
     }
 
-    public displayRoutes() :void{
-        this.responses.responseArray(200, this.service.getFormattedRoutes());
+    public async displayRoutes() :Promise<void>{
+        this.responses.responseArray(200, await this.service.getFormattedRoutes());
     }
 }

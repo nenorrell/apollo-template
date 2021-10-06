@@ -8,17 +8,33 @@ services:
     working_dir: /usr/src/app
     environment:
       NODE_ENV: "development"
+
+      DB_TOKEN_STORE_HOST: token-store
+      DB_TOKEN_STORE_USER: "root"
+      DB_TOKEN_STORE_PASS: "password"
+      DB_TOKEN_STORE_PORT: 3306
+      DB_TOKEN_STORE: "token-store"
     
     volumes:
+      - ./bin:/entrypoint
       - ./:/usr/src/app
     ports:
       - "9200:9200"
       - "3035:1337"
     expose:
       - "1337"
-    entrypoint: "npm run webpack"
+    entrypoint: "/entrypoint/wait-for-it.sh mysql:3306 -- /entrypoint/wait-for-it.sh --timeout=30 token-store:3306 -- npm run start-dev"
+
+  token-store:
+    image: mysql:8
+    environment:
+      MYSQL_DATABASE: "token-store"
+      MYSQL_ROOT_PASSWORD: "password"
+    ports:
+      - "3307:3306"
+    command: --default-authentication-plugin=mysql_native_password
 
 networks:
   default:
     external:
-      name: aha_hockey
+      name: stonks-network

@@ -11,4 +11,4 @@ echo "\n Done!"
 mkdir "dist"
 
 echo "Copying app to dist..."
-cp -r ./build ./dist
+cp -r ./version ./dist

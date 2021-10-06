@@ -1,4 +1,4 @@
-import {Controller} from "../Controller";
+import { Controller } from "@apollo-api/core";
 import fs from "fs/promises";
 import path from "path";
 
@@ -8,7 +8,7 @@ export class RootController extends Controller{
     }
 
     public index() :any{
-        return this.responses.responseObject(200, "Healthy")
+        return this.responses.responseText(200, "Healthy")
     }
 
     public async certbot() :Promise<any>{

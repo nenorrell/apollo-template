@@ -1,7 +1,7 @@
 {
   "name": "apollo-api",
-  "script": "./build/build.js",
-  "args": [ "--color"],
+  "script": "ts-node",
+  "args": ["app.ts", "--color"],
   "node_args": ["--inspect=0.0.0.0:9200"],
-  "watch": ["./build/build.js"]
+  "watch": ["app.ts", "src"]
 }

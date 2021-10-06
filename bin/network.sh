@@ -1,7 +1,7 @@
 #!/bin/bash
-docker network create apollo-api
+docker network create stonks-network
 if [ $? -eq 0 ]; then
-    echo Created apollo-api network
+    echo Created stonks-network network
 else
-    echo apollo-api network already exists
+    echo stonks-network network already exists
 fi

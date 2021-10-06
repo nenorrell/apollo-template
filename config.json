@@ -1,5 +1,5 @@
 {
-    "name": "apollo-api",
-    "script": "./build/build.js",
-    "args": [ "--color"]
-  }
+  "name": "apollo-api",
+  "script": "./app.js",
+  "args": [ "--color"]
+}
