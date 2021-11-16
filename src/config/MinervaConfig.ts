@@ -24,4 +24,4 @@ export const minervaConfig :MinervaConfig<ConnectionNames> = {
         ...logger,
         warn: ()=>{}
     }
-}
+};

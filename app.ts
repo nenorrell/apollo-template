@@ -5,10 +5,10 @@ import { debug, error } from "./src/modules/logger";
 
 const apollo :App = new App();
 runMigrations(apollo)
-.then(()=>{
-    debug(green("Migrations have finished!"));
-    apollo.listen();
-})
-.catch((e)=>{
-    error("Migrations Failed", e);
-});
+    .then(()=>{
+        debug(green("Migrations have finished!"));
+        apollo.listen();
+    })
+    .catch((e)=>{
+        error("Migrations Failed", e);
+    });

@@ -1,24 +1,40 @@
-import { Controller } from "@apollo-api/core";
+import { ApolloType, Controller } from "@apollo-api/core";
 import fs from "fs/promises";
 import path from "path";
 
-export class RootController extends Controller{
-    constructor(){
-        super();
+export class RootController extends Controller {
+    constructor(Apollo :ApolloType) {
+        super(Apollo);
     }
 
-    public index() :any{
-        return this.responses.responseText(200, "Healthy")
+    public index() :any {
+        console.log("***** ROUTE *****");
+        console.log(this.currentRoute);
+        return this.responses.responseText(200, "Healthy");
     }
 
-    public async certbot() :Promise<any>{
+    sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    public async pause() {
+        console.log("***** PAUSE *****");
+        console.log(this.currentRoute);
+        await this.sleep(5000);
+
+        console.log("***** RESUME *****");
+        console.log(this.currentRoute);
+        return this.responses.responseText(200, "Healthy");
+    }
+
+    public async certbot() :Promise<any> {
         try{
-            let filePath = `/ssl-config/certbot/www/.well-known/acme-challenge/${this.req.params["challengeString"]}`;
-            let challenge = await fs.readFile(path.resolve(__dirname, `${filePath}`), "utf-8");
+            const filePath = `/ssl-config/certbot/www/.well-known/acme-challenge/${this.req.params["challengeString"]}`;
+            const challenge = await fs.readFile(path.resolve(__dirname, `${filePath}`), "utf-8");
             return this.responses.responseText(200, challenge);
         }
-        catch(e){
-            this.next(e)
+        catch(e) {
+            this.next(e);
         }
     }
 }

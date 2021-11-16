@@ -1,21 +1,21 @@
 import { yellow } from "chalk";
-import * as umzug from "umzug";
+import * as Umzug from "umzug";
 import { App } from "../../config/App";
 import { debug, info } from "../logger";
 import { ApolloMigrationStorage } from "./apolloMigrationStorage";
 
 export const runMigrations = async (apollo :App, omitResolver ?:boolean) :Promise<void> =>{
     try{
-        const customResolver = (migrationFile :string)=>{                    
-            let file = migrationFile.match(/([^\/]*)\/*$/)[1];
+        const customResolver = (migrationFile :string)=>{
+            const file = migrationFile.match(/([^\/]*)\/*$/)[1];
             info(`Running migration: ${file}`);
             return require(`../../../migrations/${file}`);
         };
 
         debug("Running migrations...");
-        const migration = new umzug({
+        const migration = new Umzug({
             migrations: {
-                path: `./migrations`,
+                path: "./migrations",
                 pattern: /.*/,
                 customResolver: omitResolver ? null : customResolver,
                 params: [
@@ -25,21 +25,21 @@ export const runMigrations = async (apollo :App, omitResolver ?:boolean) :Promis
             storage: new ApolloMigrationStorage(apollo.db.connections)
         });
 
-        let pending = await migration.pending();
-        if(pending.length != 0){
+        const pending = await migration.pending();
+        if(pending.length != 0) {
             info("Migrations found!");
             await migration.up();
 
-            let executed = await migration.executed();
+            const executed = await migration.executed();
             executed.forEach((item)=>{
                 info(`Ran migration: ${item.file}`);
             });
         }
         else{
-            info(yellow("No pending migrations were found. Skipping."))
+            info(yellow("No pending migrations were found. Skipping."));
         }
     }
-    catch(e){
+    catch(e) {
         throw e;
     }
-}
+};

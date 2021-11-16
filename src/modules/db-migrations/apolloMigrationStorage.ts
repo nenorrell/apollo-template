@@ -3,10 +3,10 @@ import { ConnectionNames } from "../../config/MinervaConfig";
 import { ApolloType } from "../../config/Apollo/ApolloWrapper";
 import { asyncForEach } from "../utility";
 
-export class ApolloMigrationStorage implements Storage{
-    constructor(public connections :ApolloType["db"]["connections"]){}
+export class ApolloMigrationStorage implements Storage {
+    constructor(public connections :ApolloType["db"]["connections"]) {}
 
-    public async createMetaTableIfNeeded(dbName :string, connection :any) :Promise<void>{        
+    public async createMetaTableIfNeeded(dbName :string, connection :any) :Promise<void> {
         try{
             await connection.schema.createTableIfNotExists("migrations", (table)=>{
                 table.increments();
@@ -15,36 +15,38 @@ export class ApolloMigrationStorage implements Storage{
                 table.charset("utf8");
             });
         }
-        catch(e){
+        catch(e) {
             throw e;
         }
     }
-    
-    public async logMigration(migrationName: string) :Promise<void>{
-        const [targetDb, migration] = migrationName.split("_")
+
+    public async logMigration(migrationName: string) :Promise<void> {
+        // eslint-disable-next-line no-unused-vars
+        const [targetDb, migration] = migrationName.split("_");
         const connection = this.connections.get(targetDb as any);
         await this.createMetaTableIfNeeded(targetDb, connection);
-        await connection.insert({name: migrationName}).into("migrations")
+        await connection.insert({name: migrationName}).into("migrations");
     }
 
-    public async unlogMigration(migrationName: string) :Promise<void>{
-        const [targetDb, migration] = migrationName.split("_")
+    public async unlogMigration(migrationName: string) :Promise<void> {
+        // eslint-disable-next-line no-unused-vars
+        const [targetDb, migration] = migrationName.split("_");
         const connection = this.connections.get(targetDb as any);
         await this.createMetaTableIfNeeded(targetDb, connection);
 
         await connection.delete()
-        .from("migrations")
-        .where("name", "=", migrationName);
+            .from("migrations")
+            .where("name", "=", migrationName);
     }
 
-    public async executed() :Promise<String[]>{
+    public async executed() :Promise<String[]> {
         const connectionNames :ConnectionNames[] = [];
         this.connections.forEach((connection, key)=>{
             connectionNames.push(key);
         });
-        
+
         const ranMigrationsArray = await asyncForEach(connectionNames, async (name)=>{
-            const connection = this.connections.get(name); 
+            const connection = this.connections.get(name);
             await this.createMetaTableIfNeeded(name, connection);
             return await connection.select("*").from("migrations");
         });
@@ -53,7 +55,7 @@ export class ApolloMigrationStorage implements Storage{
         ranMigrationsArray.forEach((resultSet)=>{
             resultSet.map((result)=>{
                 ranMigrations.push(result.name);
-            })
+            });
         });
         return ranMigrations;
     }

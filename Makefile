@@ -25,7 +25,13 @@ network:
 install:
 	docker run -i --rm --name install-apollo-api -u "node" -v `pwd`:/usr/src/app -w /usr/src/app node:${NODE} npm install ${PCKG}
 
-test: install version compile-test unit_test integration-test
+lint:
+	docker run -i --rm --name lint-apollo-api -u "node" -v `pwd`:/usr/src/app -w /usr/src/app node:${NODE} npm run lint
+
+lint-fix:
+	docker run -i --rm --name lint-fix-apollo-api -u "node" -v `pwd`:/usr/src/app -w /usr/src/app node:${NODE} npm run lint:fix
+
+test: install lint version compile-test unit_test integration-test
 
 fast-test: version unit_test integration-test
 

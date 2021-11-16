@@ -1,15 +1,15 @@
-import { Controller } from "@apollo-api/core";
+import { Controller, ApolloType } from "@apollo-api/core";
 import {VersionService} from "./version.service";
 
-export class VersionController extends Controller{
+export class VersionController extends Controller {
     private service :VersionService;
 
-    constructor(){
-        super();
-        this.service = new VersionService();
+    constructor(Apollo :ApolloType) {
+        super(Apollo);
+        this.service = new VersionService(Apollo);
     }
 
-    public getVersion() :void{
+    public getVersion() :void {
         return this.responses.responseObject(200, {
             version: this.service.getVersion()
         });
