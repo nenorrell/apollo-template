@@ -1,6 +1,7 @@
-import { ApolloType, Controller } from "@apollo-api/core";
+import { Controller } from "@apollo-api/core";
 import fs from "fs/promises";
 import path from "path";
+import { ApolloType } from "../../config/Apollo/ApolloConfig";
 
 export class RootController extends Controller {
     constructor(Apollo :ApolloType) {
@@ -9,20 +10,6 @@ export class RootController extends Controller {
 
     public index() :any {
         console.log("***** ROUTE *****");
-        console.log(this.currentRoute);
-        return this.responses.responseText(200, "Healthy");
-    }
-
-    sleep(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    }
-
-    public async pause() {
-        console.log("***** PAUSE *****");
-        console.log(this.currentRoute);
-        await this.sleep(5000);
-
-        console.log("***** RESUME *****");
         console.log(this.currentRoute);
         return this.responses.responseText(200, "Healthy");
     }

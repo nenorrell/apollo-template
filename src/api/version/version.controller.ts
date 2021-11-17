@@ -1,4 +1,5 @@
-import { Controller, ApolloType } from "@apollo-api/core";
+import { Controller } from "@apollo-api/core";
+import { ApolloType } from "../../config/Apollo/ApolloConfig";
 import {VersionService} from "./version.service";
 
 export class VersionController extends Controller {

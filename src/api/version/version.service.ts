@@ -1,4 +1,5 @@
-import { ApolloType, Service } from "@apollo-api/core";
+import { Service } from "@apollo-api/core";
+import { ApolloType } from "../../config/Apollo/ApolloConfig";
 import * as versionFile from "./BUILD-VERSION.json";
 export class VersionService extends Service {
     constructor(Apollo :ApolloType) {

@@ -1,4 +1,5 @@
-import { ApolloType, formatError } from "@apollo-api/core";
+import { formatError } from "@apollo-api/core";
+import { ApolloType } from "../ApolloConfig";
 export interface Policies{
     isAuthenticated: (Apollo :ApolloType) => Promise<void>
 }

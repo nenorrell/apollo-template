@@ -15,7 +15,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@apollo-api/core": "^2.0.1",
+    "@apollo-api/core": "^2.1.0",
     "@apollo-api/minerva": "^1.0.0",
     "@apollo-api/visualizer": "^1.3.0",
     "bcryptjs": "^2.4.3",

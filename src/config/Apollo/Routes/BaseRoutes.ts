@@ -1,19 +1,10 @@
 import { Route, RouteParam } from "@apollo-api/core";
-import { PolicyNames } from "./Policies";
 
 const root :Route = new Route()
     .setMethod("GET")
     .setPath("/")
     .setController("root")
     .setAction("index")
-    .setDescription("Check to see if the API is running");
-
-const pause :Route = new Route()
-    .setMethod("GET")
-    .setPath("/pause")
-    .setPolicies<PolicyNames>(["isAuthenticated"])
-    .setController("root")
-    .setAction("pause")
     .setDescription("Check to see if the API is running");
 
 const version :Route = new Route()
@@ -48,7 +39,6 @@ const apiDocs :Route = new Route()
 
 export const baseRoutes :Array<Route> = [
     root,
-    pause,
     version,
     apiDocs,
     certChallenge

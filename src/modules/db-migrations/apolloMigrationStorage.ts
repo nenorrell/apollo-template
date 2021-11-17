@@ -1,10 +1,10 @@
 import { Storage } from "umzug";
+import { ApolloType } from "../../config/Apollo/ApolloConfig";
 import { ConnectionNames } from "../../config/MinervaConfig";
-import { ApolloType } from "../../config/Apollo/ApolloWrapper";
 import { asyncForEach } from "../utility";
 
 export class ApolloMigrationStorage implements Storage {
-    constructor(public connections :ApolloType["db"]["connections"]) {}
+    constructor(public connections :ApolloType["custom"]["db"]["connections"]) {}
 
     public async createMetaTableIfNeeded(dbName :string, connection :any) :Promise<void> {
         try{

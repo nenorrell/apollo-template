@@ -1,4 +1,5 @@
-import { ApolloType, Controller, Routes } from "@apollo-api/core";
+import { Controller, Routes } from "@apollo-api/core";
+import { ApolloType } from "../../config/Apollo/ApolloConfig";
 
 export class ApiDocsController extends Controller {
     private service :Routes;
