@@ -9,8 +9,6 @@ export class RootController extends Controller {
     }
 
     public index() :any {
-        console.log("***** ROUTE *****");
-        console.log(this.currentRoute);
         return this.responses.responseText(200, "Healthy");
     }
 
