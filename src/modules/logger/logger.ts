@@ -1,10 +1,11 @@
+import { ObjectOfAnything } from "@apollo-api/core/dist/resources/Common";
 import { red } from "chalk";
 import { ApolloConfig } from "../../config/Apollo/ApolloConfig";
 import * as log from "./bunyanConfig";
 
 const tag :string = `${process.env.ENV || "local"}.apollo-api`;
 
-const formatLogData = (arg, str)=>{
+const formatLogData = (arg, str) :[ObjectOfAnything, string]=>{
     let serializerObj = {
         tag,
     };
@@ -28,7 +29,7 @@ const formatLogData = (arg, str)=>{
     return [serializerObj, logMessage];
 };
 
-export const applyToLog = (method :keyof ApolloConfig["logger"], str, arg, ...extraArgs)=>{
+export const applyToLog = (method :keyof ApolloConfig["logger"], str, arg, ...extraArgs) :void =>{
     if (!(process.env.NODE_ENV === "test" && process.env.RUN_TESTS_WITH_LOGS == "false")) {
         const args = formatLogData(arg || arg, str);
         if (args) {
@@ -40,15 +41,15 @@ export const applyToLog = (method :keyof ApolloConfig["logger"], str, arg, ...ex
     }
 };
 
-export const info = (str?:any, arg?:any, ...extraArgs)=>{
+export const info = (str?:any, arg?:any, ...extraArgs) :void=>{
     applyToLog("info", str, arg, ...extraArgs);
 };
 
-export const error = (str?:any, arg?:any, ...extraArgs)=>{
+export const error = (str?:any, arg?:any, ...extraArgs) :void=>{
     str = red(str);
     applyToLog("error", str, arg, ...extraArgs);
 };
 
-export const debug = (str?:any, arg?:any, ...extraArgs)=>{
+export const debug = (str?:any, arg?:any, ...extraArgs) :void=>{
     applyToLog("debug", str, arg, ...extraArgs);
 };
