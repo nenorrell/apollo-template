@@ -1,7 +1,7 @@
 import { yellow } from "chalk";
 import * as Umzug from "umzug";
 import { App } from "../../config/App";
-import { debug, info } from "../logger";
+import { debug, info } from "../logger/logger";
 import { ApolloMigrationStorage } from "./apolloMigrationStorage";
 
 export const runMigrations = async (apollo :App, omitResolver ?:boolean) :Promise<void> =>{

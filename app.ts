@@ -1,7 +1,7 @@
 import { green } from "chalk";
 import {App} from "./src/config/App";
 import { runMigrations } from "./src/modules/db-migrations/apolloMigrations";
-import { debug, error } from "./src/modules/logger";
+import { debug, error } from "./src/modules/logger/logger";
 
 const apollo :App = new App();
 runMigrations(apollo)

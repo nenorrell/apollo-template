@@ -1,5 +1,5 @@
 import { App } from "../src/config/App";
-import { error } from "../src/modules/logger";
+import { error } from "../src/modules/logger/logger";
 
 export default {
     up: async function(connections :App["db"]["connections"]) :Promise<boolean> {

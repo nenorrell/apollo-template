@@ -5,7 +5,7 @@ import * as path from "path";
 import * as https from "https";
 import * as onFinished from "on-finished";
 import {green} from "chalk";
-import {info, debug, error} from "../modules/logger";
+import {info, debug, error} from "../modules/logger/logger";
 import { ErrorHandler } from "./ErrorHandler";
 import * as cors from "cors";
 import { minervaConfig, ConnectionNames } from "./MinervaConfig";

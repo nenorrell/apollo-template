@@ -1,5 +1,5 @@
 import { MinervaConfig } from "@apollo-api/minerva";
-import * as logger from "../modules/logger";
+import * as logger from "../modules/logger/logger";
 
 export type ConnectionNames = "token-store";
 

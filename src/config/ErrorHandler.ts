@@ -1,5 +1,5 @@
 import { Response } from "express";
-import {error} from "../modules/logger";
+import {error} from "../modules/logger/logger";
 import {ErrorInterface, Responses} from "@apollo-api/core";
 
 export class ErrorHandler {

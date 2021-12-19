@@ -1,10 +1,10 @@
-const bunyan = require("bunyan");
-const PrettyStream = require("bunyan-prettystream");
+import * as bunyan from "bunyan";
+import * as PrettyStream from "bunyan-prettystream";
 
 const prettyStdOut = new PrettyStream();
 prettyStdOut.pipe(process.stdout);
 
-const bunyanConfig = bunyan.createLogger({
+export default bunyan.createLogger({
     name: "apollo-api",
     streams: [{
         type: "raw",
@@ -28,5 +28,3 @@ const bunyanConfig = bunyan.createLogger({
         }
     }
 });
-
-module.exports = bunyanConfig;
