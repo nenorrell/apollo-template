@@ -60,9 +60,6 @@ integration-test-run:
 	--require ts-node/register \
 	$(INTEGRATION_TEST) -R spec --color --verbose --exit
 
-package:
-	/bin/sh ./bin/package.sh
-
 compile:
 	docker run -it --rm --name compile-apollo-api-api -e NODE_ENV=production -u "node" -v `pwd`:/usr/src/app -w /usr/src/app node:${NODE} npm run build-ts
 
@@ -82,7 +79,7 @@ push:
 push-hotifix:
 	docker push $(IMAGE):$(GIT_HASH)
 
-build_image: build-compile package
+build_image: build-compile
 	docker build --no-cache -t $(IMAGE):$(GIT_HASH) .
 
 tag: install version build_image
